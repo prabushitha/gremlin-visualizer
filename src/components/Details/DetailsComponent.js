@@ -21,9 +21,13 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import _ from 'lodash';
 import { JsonToTable } from 'react-json-to-table';
-import { ACTIONS } from '../../constants';
+import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
+import axios from "axios";
+import { onFetchQuery} from '../../logics/actionHelper';
 
 class Details extends React.Component {
 
@@ -41,6 +45,19 @@ class Details extends React.Component {
 
   onRefresh() {
     this.props.dispatch({ type: ACTIONS.REFRESH_NODE_LABELS, payload: this.props.nodeLabels });
+  }
+
+  onTraverse(nodeId, direction) {
+    const query = `g.V('${nodeId}').${direction}()`;
+    axios.post(
+      QUERY_ENDPOINT,
+      { host: this.props.host, port: this.props.port, query: query },
+      { headers: { 'Content-Type': 'application/json' } }
+    ).then((response) => {
+      onFetchQuery(response, query, this.props.nodeLabels, this.props.dispatch);
+    }).catch((error) => {
+      this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
+    });
   }
 
   generateList(list) {
@@ -87,70 +104,114 @@ class Details extends React.Component {
   }
 
   render(){
-    const hasSelected = !_.isEmpty(this.props.selectedNode) || !_.isEmpty(this.props.selectedEdge);
+    let hasSelected = false;
+    let selectedType = null;
+    let selectedId = null ;
+    let selectedProperties = null;
+    let selectedHeader = null;
+    if (!_.isEmpty(this.props.selectedNode)) {
+      hasSelected = true;
+      selectedType =  _.get(this.props.selectedNode, 'type');
+      selectedId = _.get(this.props.selectedNode, 'id');
+      selectedProperties = _.get(this.props.selectedNode, 'properties');
+      selectedHeader = 'Node';
+    } else if (!_.isEmpty(this.props.selectedEdge)) {
+      hasSelected = true;
+      selectedType =  _.get(this.props.selectedEdge, 'type');
+      selectedId = _.get(this.props.selectedEdge, 'id');
+      selectedProperties = _.get(this.props.selectedEdge, 'properties');
+      selectedHeader = 'Edge';
+    }
 
-    const selectedType = (this.props.selectedNode && this.props.selectedNode.type) || (this.props.selectedEdge && this.props.selectedEdge.type);
-    const selectedId = (this.props.selectedNode && this.props.selectedNode.id) || (this.props.selectedEdge && this.props.selectedEdge.id);
-    const selectedProperties = (this.props.selectedNode && this.props.selectedNode.properties) || (this.props.selectedEdge && this.props.selectedEdge.properties);
+
     return (
       <div className={'details'}>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Query History</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <List dense={true}>
-              {this.generateList(this.props.queryHistory)}
-            </List>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel>
-          <ExpansionPanelSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Node Labels</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Grid container spacing={1}>
-              <Grid item xs={12} sm={12} md={12}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={12} md={12}>
+            <ExpansionPanel>
+              <ExpansionPanelSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Query History</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
                 <List dense={true}>
-                  {this.generateNodeLabelList(this.props.nodeLabels || {})}
+                  {this.generateList(this.props.queryHistory)}
                 </List>
-              </Grid>
-              <Grid item xs={12} sm={12} md={12}>
-                <Fab variant="extended" color="primary" size="small" onClick={this.onRefresh.bind(this)}>
-                  <RefreshIcon />
-                  Refresh
-                </Fab>
-                <Fab variant="extended" size="small" onClick={this.onAddNodeLabel.bind(this)}>
-                  <AddIcon />
-                  Add Node Label
-                </Fab>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+            <ExpansionPanel>
+              <ExpansionPanelSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Node Labels</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <Grid container spacing={1}>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <List dense={true}>
+                      {this.generateNodeLabelList(this.props.nodeLabels || {})}
+                    </List>
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <Fab variant="extended" color="primary" size="small" onClick={this.onRefresh.bind(this)}>
+                      <RefreshIcon />
+                      Refresh
+                    </Fab>
+                    <Fab variant="extended" size="small" onClick={this.onAddNodeLabel.bind(this)}>
+                      <AddIcon />
+                      Add Node Label
+                    </Fab>
+                  </Grid>
+                </Grid>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+          </Grid>
+          {hasSelected &&
+          <Grid item xs={12} sm={12} md={12}>
+            <h2>Information: {selectedHeader}</h2>
+            {selectedHeader === 'Node' &&
+            <Grid item xs={12} sm={12} md={12}>
+              <Grid container spacing={2}>
+                <Grid item xs={6} sm={6} md={6}>
+                  <Fab variant="extended" size="small" onClick={() => this.onTraverse(selectedId, 'out')}>
+                    Traverse Out Edges
+                    <ArrowForwardIcon/>
+                  </Fab>
+                </Grid>
+                <Grid item xs={6} sm={6} md={6}>
+                  <Fab variant="extended" size="small" onClick={() => this.onTraverse(selectedId, 'in')}>
+                    Traverse In Edges
+                    <ArrowBackIcon/>
+                  </Fab>
+                </Grid>
               </Grid>
             </Grid>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        {hasSelected && <h2>Information</h2>}
-        {hasSelected && <Table aria-label="simple table">
-          <TableBody>
-            <TableRow key={'type'}>
-              <TableCell component="right" scope="row">Type</TableCell>
-              <TableCell align="left">{selectedType}</TableCell>
-            </TableRow>
-            <TableRow key={'id'}>
-              <TableCell component="right" scope="row">ID</TableCell>
-              <TableCell align="left">{selectedId}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>}
-        {hasSelected && <JsonToTable json={selectedProperties} />}
-
+            }
+            <Grid item xs={12} sm={12} md={12}>
+              <Grid container>
+                <Table aria-label="simple table">
+                  <TableBody>
+                    <TableRow key={'type'}>
+                      <TableCell scope="row">Type</TableCell>
+                      <TableCell align="left">{String(selectedType)}</TableCell>
+                    </TableRow>
+                    <TableRow key={'id'}>
+                      <TableCell scope="row">ID</TableCell>
+                      <TableCell align="left">{String(selectedId)}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <JsonToTable json={selectedProperties}/>
+              </Grid>
+            </Grid>
+          </Grid>
+          }
+        </Grid>
       </div>
     );
   }
@@ -158,6 +219,8 @@ class Details extends React.Component {
 
 export const DetailsComponent = connect((state)=>{
   return {
+    host: state.gremlin.host,
+    port: state.gremlin.port,
     selectedNode: state.graph.selectedNode,
     selectedEdge: state.graph.selectedEdge,
     queryHistory: state.options.queryHistory,

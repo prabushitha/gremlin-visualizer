@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, TextField }  from '@material-ui/core';
 import axios from 'axios';
 import { ACTIONS, QUERY_ENDPOINT, COMMON_GREMLIN_ERROR } from '../../constants';
-import { extractEdgesAndNodes } from '../../logics/utils';
+import { onFetchQuery } from '../../logics/actionHelper';
 
 class Header extends React.Component {
   clearGraph() {
@@ -18,11 +18,7 @@ class Header extends React.Component {
       { host: this.props.host, port: this.props.port, query: this.props.query },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
-      const { nodes, edges, nodeLabels } = extractEdgesAndNodes(response.data, this.props.nodeLabels);
-      this.props.dispatch({ type: ACTIONS.ADD_NODES, payload: nodes });
-      this.props.dispatch({ type: ACTIONS.ADD_EDGES, payload: edges });
-      this.props.dispatch({ type: ACTIONS.SET_NODE_LABELS, payload: nodeLabels });
-      this.props.dispatch({ type: ACTIONS.ADD_QUERY_HISTORY, payload: this.props.query });
+      onFetchQuery(response, this.props.query, this.props.nodeLabels, this.props.dispatch);
     }).catch((error) => {
       this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
     });
