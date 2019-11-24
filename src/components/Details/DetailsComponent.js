@@ -80,25 +80,26 @@ class Details extends React.Component {
     let index = -1;
     return nodeLabels.map( nodeLabel => {
       index = index+1;
+      nodeLabel.index = index;
       return React.cloneElement((
         <ListItem>
-          <TextField id="standard-basic" label="Node Type" value={nodeLabel.type} onChange={event => {
+          <TextField id="standard-basic" label="Node Type" InputLabelProps={{ shrink: true }} value={nodeLabel.type} onChange={event => {
             const type = event.target.value;
             const field = nodeLabel.field;
-            this.onEditNodeLabel(index, { type, field })
+            this.onEditNodeLabel(nodeLabel.index, { type, field })
           }}
           />
-          <TextField id="standard-basic" label="Label Field" value={nodeLabel.field} onChange={event => {
+          <TextField id="standard-basic" label="Label Field" InputLabelProps={{ shrink: true }} value={nodeLabel.field} onChange={event => {
             const field = event.target.value;
             const type = nodeLabel.type;
-            this.onEditNodeLabel(index, { type, field })
+            this.onEditNodeLabel(nodeLabel.index, { type, field })
           }}/>
-          <IconButton aria-label="delete" size="small" onClick={() => this.onRemoveNodeLabel(index)}>
+          <IconButton aria-label="delete" size="small" onClick={() => this.onRemoveNodeLabel(nodeLabel.index)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </ListItem>
       ), {
-        key: index+1
+        key: index
       })
     });
   }
@@ -154,7 +155,7 @@ class Details extends React.Component {
                 <Grid container spacing={1}>
                   <Grid item xs={12} sm={12} md={12}>
                     <List dense={true}>
-                      {this.generateNodeLabelList(this.props.nodeLabels || {})}
+                      {this.generateNodeLabelList(this.props.nodeLabels)}
                     </List>
                   </Grid>
                   <Grid item xs={12} sm={12} md={12}>
