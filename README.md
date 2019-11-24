@@ -34,6 +34,7 @@ Note - Frontend starts on port 3000 and simple Node.js server also starts on por
 * Node and edge properties are shown once you click on a node/edge
 * Change the labels of nodes to any property
 * View the set of queries executed to generate the graph
+* Traverse in/out from the selected node
 
 ### 
 ## Contributors
