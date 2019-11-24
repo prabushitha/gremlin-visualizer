@@ -23,12 +23,6 @@ const initialState = {
         updateInterval: 25
       }
     },
-    configure: function(option, path) {
-      if (path.indexOf("smooth") !== -1 || option === "smooth") {
-        return true;
-      }
-      return false;
-    },
     nodes: {
       shape: "dot",
       size: 20,
