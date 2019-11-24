@@ -23,6 +23,8 @@ class NetworkGraph extends React.Component{
         this.props.dispatch({ type: ACTIONS.SET_SELECTED_EDGE, payload: edgeId });
       }
     });
+
+    this.props.dispatch({ type: ACTIONS.SET_NETWORK, payload: network });
   }
 
   render(){

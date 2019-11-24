@@ -4,6 +4,7 @@ import { ACTIONS } from '../constants';
 import { getDiffNodes, getDiffEdges, findNodeById } from '../logics/utils';
 
 const initialState = {
+  network: null,
   nodeHolder: new vis.DataSet([]),
   edgeHolder: new vis.DataSet([]),
   nodes: [],
@@ -20,11 +21,8 @@ export const reducer =  (state=initialState, action)=>{
 
       return { ...state, nodes: [], edges: [], selectedNode:{}, selectedEdge: {} };
     }
-    case ACTIONS.LOAD_GRAPH: {
-      state.nodeHolder.add(state.nodes);
-      state.edgeHolder.add(state.edges);
-
-      return state;
+    case ACTIONS.SET_NETWORK: {
+      return { ...state, network: action.payload };
     }
     case ACTIONS.ADD_NODES: {
       const newNodes = getDiffNodes(action.payload, state.nodes);

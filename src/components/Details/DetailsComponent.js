@@ -15,7 +15,9 @@ import {
   Table,
   TableBody,
   TableRow,
-  TableCell
+  TableCell,
+  FormControlLabel,
+  Switch
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
@@ -58,6 +60,18 @@ class Details extends React.Component {
     }).catch((error) => {
       this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
     });
+  }
+
+  onTogglePhysics(enabled){
+    this.props.dispatch({ type: ACTIONS.SET_IS_PHYSICS_ENABLED, payload: enabled });
+    if (this.props.network) {
+      const edges = {
+        smooth: {
+          type: enabled ? 'dynamic' : 'continuous'
+        }
+      };
+      this.props.network.setOptions( { physics: enabled, edges } );
+    }
   }
 
   generateList(list) {
@@ -149,10 +163,26 @@ class Details extends React.Component {
                 aria-controls="panel1a-content"
                 id="panel1a-header"
               >
-                <Typography>Node Labels</Typography>
+                <Typography>Settings</Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                <Grid container spacing={1}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={this.props.isPhysicsEnabled}
+                          onChange={() => { this.onTogglePhysics(!this.props.isPhysicsEnabled); }}
+                          value="physics"
+                          color="primary"
+                        />
+                      }
+                      label="Enable Physics"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <Typography>Node Labels</Typography>
+                  </Grid>
                   <Grid item xs={12} sm={12} md={12}>
                     <List dense={true}>
                       {this.generateNodeLabelList(this.props.nodeLabels)}
@@ -222,9 +252,11 @@ export const DetailsComponent = connect((state)=>{
   return {
     host: state.gremlin.host,
     port: state.gremlin.port,
+    network: state.graph.network,
     selectedNode: state.graph.selectedNode,
     selectedEdge: state.graph.selectedEdge,
     queryHistory: state.options.queryHistory,
-    nodeLabels: state.options.nodeLabels
+    nodeLabels: state.options.nodeLabels,
+    isPhysicsEnabled: state.options.isPhysicsEnabled
   };
 })(Details);
