@@ -6,7 +6,7 @@ This project is to visualize the graph network corresponding to a gremlin query.
 ### Setting Up Gremlin Visualizer
 * Clone the project
 ```sh
-git clone https://github.com/prabushitha/single-script-react-with-redux.git
+git clone https://github.com/prabushitha/gremlin-visualizer.git
 ```
 * Install dependenies
 ```sh
