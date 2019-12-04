@@ -41,3 +41,11 @@ export const extractEdgesAndNodes = (nodeList, nodeLabels=[]) => {
 export const findNodeById = (nodeList, id) => {
   return _.find(nodeList, node => node.id === id);
 };
+
+export const stringifyObjectValues = (obj) => {
+  _.forOwn(obj, (value, key) => {
+    if (!_.isString(value)) {
+      obj[key] = JSON.stringify(value);
+    }
+  });
+};

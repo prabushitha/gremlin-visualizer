@@ -30,6 +30,7 @@ import { JsonToTable } from 'react-json-to-table';
 import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from "axios";
 import { onFetchQuery} from '../../logics/actionHelper';
+import { stringifyObjectValues} from '../../logics/utils';
 
 class Details extends React.Component {
 
@@ -129,6 +130,7 @@ class Details extends React.Component {
       selectedType =  _.get(this.props.selectedNode, 'type');
       selectedId = _.get(this.props.selectedNode, 'id');
       selectedProperties = _.get(this.props.selectedNode, 'properties');
+      stringifyObjectValues(selectedProperties);
       selectedHeader = 'Node';
     } else if (!_.isEmpty(this.props.selectedEdge)) {
       hasSelected = true;
@@ -136,6 +138,7 @@ class Details extends React.Component {
       selectedId = _.get(this.props.selectedEdge, 'id');
       selectedProperties = _.get(this.props.selectedEdge, 'properties');
       selectedHeader = 'Edge';
+      stringifyObjectValues(selectedProperties);
     }
 
 
