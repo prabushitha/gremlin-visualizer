@@ -15,7 +15,7 @@ class Header extends React.Component {
     this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: null });
     axios.post(
       QUERY_ENDPOINT,
-      { host: this.props.host, port: this.props.port, query: this.props.query },
+      { host: this.props.host, port: this.props.port, query: this.props.query, nodeLimit: this.props.nodeLimit },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
       onFetchQuery(response, this.props.query, this.props.nodeLabels, this.props.dispatch);
@@ -63,6 +63,7 @@ export const HeaderComponent = connect((state)=>{
     error: state.gremlin.error,
     nodes: state.graph.nodes,
     edges: state.graph.edges,
-    nodeLabels: state.options.nodeLabels
+    nodeLabels: state.options.nodeLabels,
+    nodeLimit: state.options.nodeLimit
   };
 })(Header);

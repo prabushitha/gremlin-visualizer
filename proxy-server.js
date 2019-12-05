@@ -29,10 +29,6 @@ function mapToObj(inputMap) {
   return obj;
 }
 
-function arrayOfMapToObjects(arr) {
-  return arr.map((ele) => mapToObj(ele));
-}
-
 function edgesToJson(edgeList) {
   return edgeList.map(
     edge => ({
@@ -56,18 +52,20 @@ function nodesToJson(nodeList) {
   );
 }
 
-function makeQuery(query) {
-  return `${query}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
+function makeQuery(query, nodeLimit) {
+  const nodeLimitQuery = !isNaN(nodeLimit) && Number(nodeLimit) > 0 ? `.limit(${nodeLimit})`: '';
+  return `${query}${nodeLimitQuery}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
 }
 
 app.post('/query', (req, res, next) => {
-  const host = req.body.host;
-  const port = req.body.port;
+  const gremlinHost = req.body.host;
+  const gremlinPort = req.body.port;
+  const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
 
-  const client = new gremlin.driver.Client(`ws://${host}:${port}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
+  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
 
-  client.submit(makeQuery(query), {})
+  client.submit(makeQuery(query, nodeLimit), {})
     .then((result) => res.send(nodesToJson(result._items)))
     .catch((err) => next(err));
 

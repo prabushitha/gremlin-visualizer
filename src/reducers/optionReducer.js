@@ -5,6 +5,7 @@ const initialState = {
   nodeLabels: [],
   queryHistory: [],
   isPhysicsEnabled: true,
+  nodeLimit: 100,
   networkOptions: {
     physics: {
       forceAtlas2Based: {
@@ -80,6 +81,10 @@ export const reducer =  (state=initialState, action)=>{
         return { ...state, nodeLabels };
       }
       return state;
+    }
+    case ACTIONS.SET_NODE_LIMIT: {
+      const nodeLimit = action.payload;
+      return { ...state, nodeLimit };
     }
     default:
       return state;

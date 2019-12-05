@@ -17,7 +17,9 @@ import {
   TableRow,
   TableCell,
   FormControlLabel,
-  Switch
+  Switch,
+  Divider,
+  Tooltip
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
@@ -46,6 +48,10 @@ class Details extends React.Component {
     this.props.dispatch({ type: ACTIONS.REMOVE_NODE_LABEL, payload: index });
   }
 
+  onEditNodeLimit(limit) {
+    this.props.dispatch({ type: ACTIONS.SET_NODE_LIMIT, payload: limit });
+  }
+
   onRefresh() {
     this.props.dispatch({ type: ACTIONS.REFRESH_NODE_LABELS, payload: this.props.nodeLabels });
   }
@@ -54,7 +60,7 @@ class Details extends React.Component {
     const query = `g.V('${nodeId}').${direction}()`;
     axios.post(
       QUERY_ENDPOINT,
-      { host: this.props.host, port: this.props.port, query: query },
+      { host: this.props.host, port: this.props.port, query: query, nodeLimit: this.props.nodeLimit },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
       onFetchQuery(response, query, this.props.nodeLabels, this.props.dispatch);
@@ -171,6 +177,7 @@ class Details extends React.Component {
               <ExpansionPanelDetails>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={12} md={12}>
+                    <Tooltip title="Automatically stabilize the graph" aria-label="add">
                     <FormControlLabel
                       control={
                         <Switch
@@ -182,6 +189,20 @@ class Details extends React.Component {
                       }
                       label="Enable Physics"
                     />
+                    </Tooltip>
+                    <Divider />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <Tooltip title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions." aria-label="add">
+                      <TextField label="Node Limit" type="Number" variant="outlined" value={this.props.nodeLimit} onChange={event => {
+                        const limit = event.target.value;
+                        this.onEditNodeLimit(limit)
+                      }} />
+                    </Tooltip>
+
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12}>
+                    <Divider />
                   </Grid>
                   <Grid item xs={12} sm={12} md={12}>
                     <Typography>Node Labels</Typography>
@@ -260,6 +281,7 @@ export const DetailsComponent = connect((state)=>{
     selectedEdge: state.graph.selectedEdge,
     queryHistory: state.options.queryHistory,
     nodeLabels: state.options.nodeLabels,
+    nodeLimit: state.options.nodeLimit,
     isPhysicsEnabled: state.options.isPhysicsEnabled
   };
 })(Details);
