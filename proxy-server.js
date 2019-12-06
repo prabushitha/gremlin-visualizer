@@ -12,13 +12,6 @@ app.use(cors({
 // parse application/json
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-
-  res.send('Hello World!');
-});
-
-
-
 function mapToObj(inputMap) {
   let obj = {};
 
@@ -71,4 +64,4 @@ app.post('/query', (req, res, next) => {
 
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${port}!`));

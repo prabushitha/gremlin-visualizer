@@ -4,6 +4,8 @@ This project is to visualize the graph network corresponding to a gremlin query.
 ![alt text](https://raw.githubusercontent.com/prabushitha/Readme-Materials/master/Gremlin-Visualizer.png)
 
 ### Setting Up Gremlin Visualizer
+To setup gremlin visualizer, you need to have `node.js` and `npm` installed in your system.
+
 * Clone the project
 ```sh
 git clone https://github.com/prabushitha/gremlin-visualizer.git
@@ -30,7 +32,7 @@ Note - Frontend starts on port 3000 and simple Node.js server also starts on por
 * Write an gremlin query to retrieve a set of nodes (eg. `g.V()`)
 
 ### Features
-* If you doesn't clear the graph and execute another gremlin query, results of previous query and new query will be merged and be shown.
+* If you don't clear the graph and execute another gremlin query, results of previous query and new query will be merged and be shown.
 * Node and edge properties are shown once you click on a node/edge
 * Change the labels of nodes to any property
 * View the set of queries executed to generate the graph
