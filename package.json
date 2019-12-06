@@ -1,8 +1,9 @@
 {
-  "name": "graph-visualizer",
-  "version": "0.1.0",
+  "name": "gremlin-visualizer",
+  "version": "1.0.0",
   "author": "Umesh Jayasinghe",
-  "private": true,
+  "description": "Visualize graph network corresponding to a gremlin query",
+  "license": "MIT",
   "dependencies": {
     "@material-ui/core": "^4.7.0",
     "@material-ui/icons": "^4.5.1",
