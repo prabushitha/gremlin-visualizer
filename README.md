@@ -25,6 +25,33 @@ http://localhost:3000
 
 Note - Frontend starts on port 3000 and simple Node.js server also starts on port 3001. If you need to change the ports, configure in `package.json`, `proxy-server.js`, `src/constants` 
 
+#### Setting up with Docker
+
+You can build a Docker image of the gremlin visualizer with the included `Dockerfile`.
+This will use the current version of the `master` branch of the source GitHub repository.
+The Docker image can be built by calling the `docker build` command, for example:
+
+```sh
+docker build --tag=gremlin-visualizer:latest .
+```
+
+The image can also be downloaded from Docker hub: [`pbgraff/gremlin-visualizer:latest`](https://hub.docker.com/r/pbgraff/gremlin-visualizer).
+
+```sh
+docker pull pbgraff/gremlin-visualizer:latest
+```
+
+The Docker image can then be run by calling `docker run` and exposing the necessary ports for communication. See [Docker's documentation](https://docs.docker.com/engine/reference/commandline/run/) for more options on how to run the image.
+
+```sh
+# if you built the image yourself
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer gremlin-visualizer:latest
+# if you downloaded from Docker Hub
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer pbgraff/gremlin-visualizer:latest
+```
+
+The Docker container can be stopped by calling `docker stop gremlin-visualizer`.
+
 ### Usage
 * Start Gremlin-Visualizer as mentioned above
 * Start or tunnel a gremlin server
