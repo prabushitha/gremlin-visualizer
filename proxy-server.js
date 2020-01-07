@@ -25,7 +25,7 @@ function mapToObj(inputMap) {
 function edgesToJson(edgeList) {
   return edgeList.map(
     edge => ({
-      id: edge.get('id'),
+      id: typeof edge.get('id') !== "string" ? JSON.stringify(edge.get('id')) : edge.get('id'),
       from: edge.get('from'),
       to: edge.get('to'),
       label: edge.get('label'),
