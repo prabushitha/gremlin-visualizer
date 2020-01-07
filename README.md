@@ -35,10 +35,10 @@ The Docker image can be built by calling the `docker build` command, for example
 docker build --tag=gremlin-visualizer:latest .
 ```
 
-The image can also be downloaded from Docker hub: [`pbgraff/gremlin-visualizer:latest`](https://hub.docker.com/r/pbgraff/gremlin-visualizer).
+The image can also be downloaded from Docker hub: [`prabushitha/gremlin-visualizer:latest`](https://hub.docker.com/r/prabushitha/gremlin-visualizer).
 
 ```sh
-docker pull pbgraff/gremlin-visualizer:latest
+docker pull prabushitha/gremlin-visualizer:latest
 ```
 
 The Docker image can then be run by calling `docker run` and exposing the necessary ports for communication. See [Docker's documentation](https://docs.docker.com/engine/reference/commandline/run/) for more options on how to run the image.
@@ -47,7 +47,7 @@ The Docker image can then be run by calling `docker run` and exposing the necess
 # if you built the image yourself
 docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer gremlin-visualizer:latest
 # if you downloaded from Docker Hub
-docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer pbgraff/gremlin-visualizer:latest
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer prabushitha/gremlin-visualizer:latest
 ```
 
 The Docker container can be stopped by calling `docker stop gremlin-visualizer`.
