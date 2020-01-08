@@ -100,15 +100,15 @@ app.post('/query', (req, res, next) => {
         const url = `http://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
 
         request(url, {json: true}, (restError, restResponse, restBody) => {
-            console.debug(restResponse);
+            logger.debug(restResponse);
             if (restError) {
-                console.warn(restResponse);
+                logger.warn(restResponse);
                 next(restError);
                 return;
             }
             if (restResponse.statusCode !== 200) {
-                console.warn(restResponse.body.message);
-                console.log(restResponse.body);
+                logger.warn(restResponse.body.message);
+                logger.debug(restResponse.body);
                 const errorJson = {message: restResponse.body.message};
                 res.status(500).send(errorJson);
                 return;
