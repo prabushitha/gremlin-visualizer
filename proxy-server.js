@@ -6,10 +6,10 @@ const request = require('request');
 const querystring = require("querystring");
 const app = express();
 const port = 3001;
-const REST_SERVER = true;
+const REST_SERVER = false;
 const pino = require('pino');
 const expressPino = require('express-pino-logger');
-const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
+const logger = pino({ level: process.env.LOG_LEVEL || 'debug' });
 const expressLogger = expressPino({ logger });
 
 app.use(expressLogger);
@@ -56,9 +56,6 @@ function nodesToJson(nodeList) {
 
 function makeQuery(query, nodeLimit) {
     const nodeLimitQuery = !isNaN(nodeLimit) && Number(nodeLimit) > 0 ? `.limit(${nodeLimit})` : '';
-    if (query === "" || !query) {
-        query = "g.V()"
-    }
     const getNodesQuery = "" +
         "" + ".dedup().as('node')" +                                       // deduplication and save var as node
         "" + ".project('id','label','properties','edges')" +               // define columns from node as table
@@ -80,21 +77,31 @@ app.post('/query', (req, res, next) => {
     const gremlinHost = req.body.host;
     const gremlinPort = req.body.port;
     const nodeLimit = req.body.nodeLimit;
-    const query = req.body.query;
+    let query = req.body.query;
+    if (query === "" || !query) {
+        query = "g.V()"
+    }
 
-    logger.debug("original query %s", query);
+    logger.debug(`original query ${query}`);
     const realQuery = makeQuery(query, nodeLimit);
-    logger.debug("real query %s", realQuery);
+    logger.debug(`real query ${realQuery}`);
 
     if (!REST_SERVER) {
         const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, {
             traversalSource: 'g',
-            mimeType: 'application/json'
+            mimeType: 'application/vnd.gremlin-v3.0+json'
         });
 
-        client.submit(makeQuery(realQuery, nodeLimit), {})
-            .then((result) => res.send(nodesToJson(result._items)))
-            .catch((err) => next(err));
+        client.submit(realQuery, {})
+            .then((result) => {
+                logger.info("received result from query");
+                logger.debug(result);
+                res.send(nodesToJson(result._items))
+            })
+            .catch((err) => {
+                logger.warn(err);
+                next(err)
+            });
     } else {
         const safeQuery = querystring.escape(realQuery);
         const url = `http://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
