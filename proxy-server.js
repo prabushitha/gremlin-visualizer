@@ -71,4 +71,6 @@ app.post('/query', (req, res, next) => {
 
 app.use('/', clientRoute);
 
-app.listen(process.env.PORT, () => console.log(`Simple gremlin-proxy server listening on port ${process.env.PORT}!`));
+app.listen({ port: parseInt(process.env.PORT) }, () => {
+  console.log(`Simple gremlin server listening on port ${process.env.PORT}!`)
+});

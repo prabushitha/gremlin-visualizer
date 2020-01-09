@@ -8,8 +8,6 @@ RUN npm cache clean --force && \
 	cd gremlin-visualizer-master && \
 	npm install
 
-EXPOSE 8080
-
 WORKDIR /gremlin-visualizer-master
-
-CMD npm start
+EXPOSE 8080
+CMD [ "npm", "start" ]
