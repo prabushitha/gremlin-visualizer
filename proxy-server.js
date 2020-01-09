@@ -4,7 +4,6 @@ const path = require('path');
 const gremlin = require('gremlin');
 const cors = require('cors');
 const app = express();
-const port = 3000;
 
 const clientRoute = express.static(path.join(__dirname, 'build'));
 
@@ -72,4 +71,4 @@ app.post('/query', (req, res, next) => {
 
 app.use('/', clientRoute);
 
-app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${port}!`));
+app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${process.env.PORT}!`));

@@ -8,7 +8,7 @@ RUN npm cache clean --force && \
 	cd gremlin-visualizer-master && \
 	npm install
 
-EXPOSE 3000
+EXPOSE 8080
 
 WORKDIR /gremlin-visualizer-master
 
