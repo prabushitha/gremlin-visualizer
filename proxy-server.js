@@ -72,5 +72,5 @@ app.post('/query', (req, res, next) => {
 app.use('/', clientRoute);
 
 app.listen({ port: parseInt(process.env.PORT) }, () => {
-  console.log(`Simple gremlin server listening on port ${process.env.PORT}!`)
+  console.log(`Gremlin Display Server started on port: ${process.env.PORT}!`)
 });
