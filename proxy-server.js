@@ -50,6 +50,10 @@ function makeQuery(query, nodeLimit) {
   return `${query}${nodeLimitQuery}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
 }
 
+app.get('/health', (req, res) => {
+  return res.status(200).send('ok');
+});
+
 app.post('/query', (req, res, next) => {
   const gremlinHost = req.body.host;
   const gremlinPort = req.body.port;
