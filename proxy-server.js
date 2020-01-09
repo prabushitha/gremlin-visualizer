@@ -1,9 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const gremlin = require('gremlin');
 const cors = require('cors');
 const app = express();
-const port = 3001;
+const port = 3000;
+
+const clientRoute = express.static(path.join(__dirname, 'build'));
 
 app.use(cors({
   credentials: true,
@@ -60,12 +63,13 @@ app.post('/query', (req, res, next) => {
   const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
 
-  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
+  const client = new gremlin.driver.Client(`wss://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
 
   client.submit(makeQuery(query, nodeLimit), {})
     .then((result) => res.send(nodesToJson(result._items)))
     .catch((err) => next(err));
-
 });
+
+app.use('/', clientRoute);
 
 app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${port}!`));
