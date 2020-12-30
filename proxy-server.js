@@ -106,7 +106,7 @@ app.post('/query', (req, res, next) => {
     } else {
         const safeQuery = querystring.escape(realQuery);
         const restProtocol = REST_HTTPS ? "https" : "http";
-        const url = `{restProtocol}://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
+        const url = `${restProtocol}://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
 
         request(url, {json: true}, (restError, restResponse, restBody) => {
             logger.debug(restResponse);
