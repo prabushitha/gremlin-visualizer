@@ -7,6 +7,7 @@ const querystring = require("querystring");
 const app = express();
 const port = 3001;
 const REST_SERVER = false;
+const REST_HTTPS = true;
 const pino = require('pino');
 const expressPino = require('express-pino-logger');
 const logger = pino({ level: process.env.LOG_LEVEL || 'debug' });
@@ -81,7 +82,7 @@ app.post('/query', (req, res, next) => {
     if (query === "" || !query) {
         query = "g.V()"
     }
-
+    
     logger.debug(`original query ${query}`);
     const realQuery = makeQuery(query, nodeLimit);
     logger.debug(`real query ${realQuery}`);
@@ -104,7 +105,8 @@ app.post('/query', (req, res, next) => {
             });
     } else {
         const safeQuery = querystring.escape(realQuery);
-        const url = `http://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
+        const restProtocol = REST_HTTPS ? "https" : "http";
+        const url = `{restProtocol}://${gremlinHost}:${gremlinPort}?gremlin=${safeQuery}`;
 
         request(url, {json: true}, (restError, restResponse, restBody) => {
             logger.debug(restResponse);
