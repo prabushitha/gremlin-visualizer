@@ -45,10 +45,11 @@ The Docker image can then be run by calling `docker run` and exposing the necess
 
 ```sh
 # if you built the image yourself
-docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer gremlin-visualizer:latest
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --network=host gremlin-visualizer:latest
 # if you downloaded from Docker Hub
-docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer prabushitha/gremlin-visualizer:latest
+docker run --rm -d -p 3000:3000 -p 3001:3001 --name=gremlin-visualizer --network=host prabushitha/gremlin-visualizer:latest
 ```
+Note that `--network=host` is not needed if you don't run your gremlin server in the host machine. 
 
 The Docker container can be stopped by calling `docker stop gremlin-visualizer`.
 
