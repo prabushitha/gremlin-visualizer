@@ -4,6 +4,7 @@ const initialState = {
   host: 'localhost',
   port: '8182',
   query: '',
+  traversalSource: 'g',
   error: null
 };
 
@@ -17,6 +18,9 @@ export const reducer =  (state=initialState, action)=>{
     }
     case ACTIONS.SET_QUERY: {
       return { ...state, query: action.payload, error: null }
+    }
+    case ACTIONS.SET_TRAVERSAL_SOURCE: {
+      return { ...state, traversalSource: action.payload, error: null }
     }
     case ACTIONS.SET_ERROR: {
       return { ...state, error: action.payload }

@@ -15,7 +15,7 @@ class Header extends React.Component {
     this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: null });
     axios.post(
       QUERY_ENDPOINT,
-      { host: this.props.host, port: this.props.port, query: this.props.query, nodeLimit: this.props.nodeLimit },
+      { host: this.props.host, port: this.props.port, query: this.props.query, nodeLimit: this.props.nodeLimit, traversalSource: this.props.traversalSource },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
       onFetchQuery(response, this.props.query, this.props.nodeLabels, this.props.dispatch);
@@ -32,6 +32,10 @@ class Header extends React.Component {
     this.props.dispatch({ type: ACTIONS.SET_PORT, payload: port });
   }
 
+  onTraversalSourceChange(traversalSource) {
+    this.props.dispatch({ type: ACTIONS.SET_TRAVERSAL_SOURCE, payload: traversalSource });
+  }
+
   onQueryChanged(query) {
     this.props.dispatch({ type: ACTIONS.SET_QUERY, payload: query });
   }
@@ -42,6 +46,7 @@ class Header extends React.Component {
         <form noValidate autoComplete="off">
           <TextField value={this.props.host} onChange={(event => this.onHostChanged(event.target.value))} id="standard-basic" label="host" style={{width: '10%'}} />
           <TextField value={this.props.port} onChange={(event => this.onPortChanged(event.target.value))} id="standard-basic" label="port" style={{width: '10%'}} />
+          <TextField value={this.props.traversalSource} onChange={(event => this.onTraversalSourceChange(event.target.value))} id="standard-basic" label="Gremlin Traversal Source" style={{width: '20%'}} />
           <TextField value={this.props.query} onChange={(event => this.onQueryChanged(event.target.value))} id="standard-basic" label="gremlin query" style={{width: '60%'}} />
           <Button variant="contained" color="primary" onClick={this.sendQuery.bind(this)} style={{width: '150px'}} >Execute</Button>
           <Button variant="outlined" color="secondary" onClick={this.clearGraph.bind(this)} style={{width: '150px'}} >Clear Graph</Button>
@@ -59,6 +64,7 @@ export const HeaderComponent = connect((state)=>{
   return {
     host: state.gremlin.host,
     port: state.gremlin.port,
+    traversalSource: state.gremlin.traversalSource,
     query: state.gremlin.query,
     error: state.gremlin.error,
     nodes: state.graph.nodes,
