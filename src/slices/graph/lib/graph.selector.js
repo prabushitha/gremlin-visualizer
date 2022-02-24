@@ -1,0 +1,3 @@
+graphSelector = (state, { global }) =>
+    state;
+

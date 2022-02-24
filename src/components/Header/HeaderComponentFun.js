@@ -4,9 +4,18 @@ import { Button, TextField } from '@material-ui/core';
 import axios from 'axios';
 import { ACTIONS, QUERY_ENDPOINT, COMMON_GREMLIN_ERROR } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
+import { useDispatch, useSelector } from 'react-redux';
+import { graphSelector } from '../../slices/graph'
+import { graphActions } from '../../slices/graph'
+
+
 
 const HeaderFun = ((props) => {
+  const dispatch = useDispatch()
+  const data, { nodes, edges } = useSelector(graphSelector)
+
   const onHostChanged = (event) => {
+
     props.dispatch({ type: ACTIONS.SET_HOST, payload: event.target.value });
   }
 
@@ -19,7 +28,8 @@ const HeaderFun = ((props) => {
   }
 
   const clearGraph = () => {
-    props.dispatch({ type: ACTIONS.CLEAR_GRAPH });
+    dispatch(graphActions.clearGraph())
+    // props.dispatch({ type: ACTIONS.CLEAR_GRAPH });
     props.dispatch({ type: ACTIONS.CLEAR_QUERY_HISTORY });
   }
 
@@ -59,8 +69,8 @@ export const HeaderComponentFun = connect((state) => {
     port: state.gremlin.port,
     query: state.gremlin.query,
     error: state.gremlin.error,
-    nodes: state.graph.nodes,
-    edges: state.graph.edges,
+    // nodes: state.graph.nodes,
+    // edges: state.graph.edges,
     nodeLabels: state.options.nodeLabels,
     nodeLimit: state.options.nodeLimit
   };
