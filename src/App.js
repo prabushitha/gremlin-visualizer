@@ -5,6 +5,7 @@ import { HeaderComponent } from './components/Header/HeaderComponent';
 import { DetailsComponent } from './components/Details/DetailsComponent';
 import {HeaderComponentFun} from './components/Header/HeaderComponentFun';
 import { NetworkGraphComponentFun } from './components/NetworkGraph/NetworkGraphComponentFun';
+import { DetailsComponentFun } from './components/Details/DetailsComponentFun';
 
 
 
@@ -19,7 +20,7 @@ export const App = () => {
             <NetworkGraphComponentFun />
           </Grid>
           <Grid item xs={12} sm={3} md={3}>
-            <DetailsComponent />
+            <DetailsComponentFun />
           </Grid>
         </Grid>
 
