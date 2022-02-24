@@ -10,7 +10,7 @@ import { graphActions } from '../../slices/graph'
 
 const NetworkGraphFun = (props) => {
   const dispatch = useDispatch()
-  const data, { nodeHolder, edgeHolder } = useSelector(graphSelector)
+  const { nodeHolder, edgeHolder } = useSelector(graphSelector)
 
   const myRef = useRef(null)
 

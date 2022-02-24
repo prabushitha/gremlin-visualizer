@@ -41,7 +41,7 @@ import { graphActions } from '../../slices/graph'
 
 const DetailsFun = (props) => {
   const dispatch = useDispatch()
-  const data, { network, selectedNode, selectedEdge } = useSelector(graphSelector)
+  const { network, selectedNode, selectedEdge } = useSelector(graphSelector)
 
   let hasSelected = false;
   let selectedType = null;

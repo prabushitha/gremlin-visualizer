@@ -1,12 +1,14 @@
 import { ActionReducerMapBuilder, createEntityAdapter, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import vis from 'vis-network';
 import _ from 'lodash';
-import { ACTIONS } from '../constants';
-import { getDiffNodes, getDiffEdges, findNodeById } from '../logics/utils';
+// import { ACTIONS } from '../constants';
+// import { getDiffNodes, getDiffEdges, findNodeById } from '../logics/utils';
+
+import {getDiffNodes, getDiffEdges, findNodeById} from '../../../logics/utils'
 
 
-export const GLOBAL_FEATURE_KEY = "graph";
-export const globalAdapter = createEntityAdapter();
+export const GRAPH_FEATURE_KEY = "graph";
+export const graphAdapter = createEntityAdapter();
 
 export const initialGraphState = {
   network: null,
@@ -20,9 +22,9 @@ export const initialGraphState = {
 
 
 
-export const globalSlice = createSlice({
-  name: GLOBAL_FEATURE_KEY,
-  initialState: initialGlobalState,
+export const graphSlice = createSlice({
+  name: GRAPH_FEATURE_KEY,
+  initialState: initialGraphState,
   reducers: {
     clearGraph: (state, { payload }) => {
       state.nodeHolder.clear();
@@ -38,7 +40,7 @@ export const globalSlice = createSlice({
     },
 
     addNodes: (state, { payload }) => {
-      const newNodes = getDiffNodes(action.payload, state.nodes);
+      const newNodes = getDiffNodes(payload, state.nodes);
       const nodes = [...state.nodes, ...newNodes];
       state.nodeHolder.add(newNodes);
       state.nodex = nodes
@@ -53,7 +55,7 @@ export const globalSlice = createSlice({
     },
 
     setSelectedNode: (state, { payload }) => {
-      const nodeId = action.payload;
+      const nodeId = payload;
       let selectedNode = {};
       if (nodeId !== null) {
         selectedNode = findNodeById(state.nodes, nodeId);
@@ -63,7 +65,7 @@ export const globalSlice = createSlice({
     },
 
     setSelectedEdge: (state, { payload }) => {
-      const edgeId = action.payload;
+      const edgeId = payload;
       let selectedEdge = {};
       if (edgeId !== null) {
         selectedEdge = findNodeById(state.edges, edgeId);
@@ -73,7 +75,7 @@ export const globalSlice = createSlice({
     },
 
     refreshNodeLabels: (state, { payload }) => {
-      const nodeLabelMap = _.mapValues(_.keyBy(action.payload, 'type'), 'field');
+      const nodeLabelMap = _.mapValues(_.keyBy(payload, 'type'), 'field');
       _.map(state.nodes, node => {
         if (node.type in nodeLabelMap) {
           const field = nodeLabelMap[node.type];

@@ -1,8 +1,7 @@
 import { extractEdgesAndNodes } from './utils';
 import { ACTIONS } from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { graphSelector } from '../../slices/graph'
-import { graphActions } from '../../slices/graph'
+import {graphActions} from '../slices/graph'
 
 
 export const onFetchQuery = (result, query, oldNodeLabels, dispatch) => {

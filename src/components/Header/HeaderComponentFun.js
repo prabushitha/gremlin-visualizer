@@ -12,7 +12,7 @@ import { graphActions } from '../../slices/graph'
 
 const HeaderFun = ((props) => {
   const dispatch = useDispatch()
-  const data, { nodes, edges } = useSelector(graphSelector)
+  const { nodes, edges } = useSelector(graphSelector)
 
   const onHostChanged = (event) => {
 
