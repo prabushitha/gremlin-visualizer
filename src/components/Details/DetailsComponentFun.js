@@ -284,9 +284,9 @@ export const DetailsComponentFun = connect((state) => {
   return {
     host: state.gremlin.host,
     port: state.gremlin.port,
-    network: state.graph.network,
-    selectedNode: state.graph.selectedNode,
-    selectedEdge: state.graph.selectedEdge,
+    // network: state.graph.network,
+    // selectedNode: state.graph.selectedNode,
+    // selectedEdge: state.graph.selectedEdge,
     queryHistory: state.options.queryHistory,
     nodeLabels: state.options.nodeLabels,
     nodeLimit: state.options.nodeLimit,
