@@ -1,20 +1,22 @@
 import React from 'react';
-import { Grid }  from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { NetworkGraphComponent } from './components/NetworkGraph/NetworkGraphComponent';
 import { HeaderComponent } from './components/Header/HeaderComponent';
 import { DetailsComponent } from './components/Details/DetailsComponent';
+import {HeaderComponentFun} from './components/Header/HeaderComponentFun';
+import { NetworkGraphComponentFun } from './components/NetworkGraph/NetworkGraphComponentFun';
 
 
-export class App extends React.Component{
-  render(){
-    return (
-      <div>
+
+export const App = () => {
+  return (
+    <div>
         <Grid container spacing={1}>
           <Grid item xs={12} sm={12} md={12}>
-            <HeaderComponent />
+            <HeaderComponentFun />
           </Grid>
           <Grid item xs={12} sm={9} md={9}>
-            <NetworkGraphComponent />
+            <NetworkGraphComponentFun />
           </Grid>
           <Grid item xs={12} sm={3} md={3}>
             <DetailsComponent />
@@ -22,6 +24,7 @@ export class App extends React.Component{
         </Grid>
 
       </div>
-      );
-  }
+  )
 }
+
+export default App

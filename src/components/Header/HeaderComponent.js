@@ -37,6 +37,7 @@ class Header extends React.Component {
   }
 
   render(){
+    console.log(this.state)
     return (
       <div className={'header'}>
         <form noValidate autoComplete="off">
