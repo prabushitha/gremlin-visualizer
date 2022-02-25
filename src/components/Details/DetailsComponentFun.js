@@ -79,6 +79,7 @@ export const DetailsFun = (props) => {
 
   const onTraverse = (nodeId, direction) => {
     const query = `g.V('${nodeId}').${direction}()`;
+    onFetchQuery({}, query, nodeLabels, dispatch)
     axios.post(
       QUERY_ENDPOINT,
       { host: host, port: port, query: query, nodeLimit: nodeLimit },

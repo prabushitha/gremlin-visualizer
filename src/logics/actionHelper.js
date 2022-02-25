@@ -7,6 +7,6 @@ export const onFetchQuery = (result, query, oldNodeLabels, dispatch) => {
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(result.data, oldNodeLabels);
   dispatch(graphActions.addNodes(nodes));
   dispatch(graphActions.addEdges(edges));
-  dispatch(optionActions.setNodeLabels(nodeLabels));
   dispatch(optionActions.addQueryHistory(query));
+  dispatch(optionActions.setNodeLabels(nodeLabels));
 };

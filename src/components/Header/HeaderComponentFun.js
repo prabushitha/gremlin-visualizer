@@ -27,6 +27,7 @@ export const HeaderFun = (() => {
 
   const sendQuery = (e) => {
     dispatch(gremlinActions.setError(null))
+    onFetchQuery({}, query, nodeLabels, dispatch)
     axios.post(
       QUERY_ENDPOINT,
       { host: host, port: port, query: query, nodeLimit: nodeLimit },
