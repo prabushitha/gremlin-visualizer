@@ -80,6 +80,8 @@ export const DetailsFun = (props) => {
 
   const onClearQueryHistory = () => dispatch(optionActions.clearQueryHistory());
 
+  const onQueryClick = (text) => dispatch(gremlinActions.setQuery(text));
+
   const onTraverse = (nodeId, direction) => {
     const query = `g.V('${nodeId}').${direction}()`;
     onFetchQuery({}, query, nodeLabels, dispatch)
@@ -111,7 +113,9 @@ export const DetailsFun = (props) => {
       return React.cloneElement((
         <ListItem>
           <ListItemText
+            onClick={() => onQueryClick(value)}
             primary={value}
+            style={{cursor: 'pointer'}}
           />
         </ListItem>
       ), {
@@ -160,9 +164,13 @@ export const DetailsFun = (props) => {
               id="panel1a-header">
               <Typography>Query History</Typography>
             </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
-              <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ width: '100px' }} >Clear</Button>
+            <ExpansionPanelDetails
+              style={{'overflow-y': 'auto',
+              'overflow-x': 'hidden',
+              'max-height': '200px' }}
+              >
               <List dense={true}>
+              <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ 'width': '100px' }} >Clear</Button>
                 {generateList(queryHistory)}
               </List>
             </ExpansionPanelDetails>
