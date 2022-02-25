@@ -19,7 +19,8 @@ import {
   FormControlLabel,
   Switch,
   Divider,
-  Tooltip
+  Tooltip,
+  Button
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
@@ -75,7 +76,9 @@ export const DetailsFun = (props) => {
 
   const onEditNodeLimit = (limit) => dispatch(optionActions.setNodeLiminit(limit));
 
-  const onRefresh = () => dispatch(graphActions.refreshNodeLabels(nodeLabels))
+  const onRefresh = () => dispatch(graphActions.refreshNodeLabels(nodeLabels));
+
+  const onClearQueryHistory = () => dispatch(optionActions.clearQueryHistory());
 
   const onTraverse = (nodeId, direction) => {
     const query = `g.V('${nodeId}').${direction}()`;
@@ -158,6 +161,7 @@ export const DetailsFun = (props) => {
               <Typography>Query History</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
+              <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ width: '100px' }} >Clear</Button>
               <List dense={true}>
                 {generateList(queryHistory)}
               </List>

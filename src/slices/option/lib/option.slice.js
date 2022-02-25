@@ -57,11 +57,14 @@ export const optionSlice = createSlice({
     },
     
     addQueryHistory: (state, {payload}) => {
-      state.queryHistory = [ ...state.queryHistory, payload]
+      state.queryHistory = [ ...state.queryHistory, payload];
+      let oldLocalStorage = localStorage.getItem('queryHistory');
+      localStorage.setItem('queryHistory', [...oldLocalStorage, payload]);
     },
 
-    clearQueryHistory: (state, {payload}) => {
+    clearQueryHistory: (state) => {
       state.queryHistory = [];
+      localStorage.setItem('queryHistory', null);
     },
 
     setNodeLabels: (state, action ) => {
