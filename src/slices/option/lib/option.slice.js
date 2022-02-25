@@ -64,7 +64,7 @@ export const optionSlice = createSlice({
 
     clearQueryHistory: (state) => {
       state.queryHistory = [];
-      localStorage.setItem('queryHistory', null);
+      localStorage.removeItem('queryHistory');
     },
 
     setNodeLabels: (state, action ) => {
