@@ -1,16 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { connect } from 'react-redux';
-import vis from 'vis-network';
-import { ACTIONS } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { graphSelector } from '../../slices/graph'
-import { graphActions } from '../../slices/graph'
+import vis from 'vis-network';
+import { graphActions, graphSelector } from '../../slices/graph'
+import { optionDataSelector } from '../../slices/option';
 
-
-
-const NetworkGraphFun = (props) => {
+export const NetworkGraphFun = () => {
   const dispatch = useDispatch()
   const { nodeHolder, edgeHolder } = useSelector(graphSelector)
+  const { networkOptions } = useSelector(optionDataSelector)
 
   const myRef = useRef(null)
 
@@ -20,12 +17,11 @@ const NetworkGraphFun = (props) => {
       edges: edgeHolder
     };
 
-    const network = new vis.Network(myRef.current, data, props.networkOptions); //this do usuniecia?
+    const network = new vis.Network(myRef.current, data, networkOptions); 
 
     network.on('selectNode', (params) => {
       const nodeId = params.nodes && params.nodes.length > 0 ? params.nodes[0] : null;
       dispatch(graphActions.setSelectedNode(nodeId))
-      // props.dispatch({ type: ACTIONS.SET_SELECTED_NODE, payload: nodeId });
     });
 
     network.on("selectEdge", (params) => {
@@ -33,24 +29,12 @@ const NetworkGraphFun = (props) => {
       const isNodeSelected = params.nodes && params.nodes.length > 0;
       if (!isNodeSelected && edgeId !== null) {
         dispatch(graphActions.setSelectedEdge(edgeId))
-        // props.dispatch({ type: ACTIONS.SET_SELECTED_EDGE, payload: edgeId });
       }
     });
-
     dispatch(graphActions.setNetwork(network))
-    // props.dispatch({ type: ACTIONS.SET_NETWORK, payload: network });
   }, [])
 
   return (
     <div ref={myRef} className={'mynetwork'} />
   )
 }
-
-
-export const NetworkGraphComponentFun = connect((state) => {
-  return {
-    // nodeHolder: state.graph.nodeHolder,
-    // edgeHolder: state.graph.edgeHolder,
-    networkOptions: state.options.networkOptions
-  };
-})(NetworkGraphFun);

@@ -1,29 +1,21 @@
-
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { applyMiddleware, createStore, combineReducers, compose, configureStore} from '@reduxjs/toolkit';
-import { createLogger } from 'redux-logger';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { logger } from 'redux-logger';
 import { Provider } from 'react-redux';
 import { App } from './App';
-// import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-// import { globalReducer } from './slices/global'
-import { graphReducer } from './slices/graph'
-import { gremlinReducer } from "./slices/gremlin";
-// import { optionReducer } from "./slices/option";
-
-
+import { gremlinReducer, graphReducer, optionReducer } from "./slices";
 
 const rootReducer = combineReducers({
-  // global: globalReducer,
   graph: graphReducer,
   gremlin: gremlinReducer,
-  // option: optionReducer,
+  option: optionReducer,
 });
 
 export const store = configureStore({
   reducer: rootReducer,
+  middleware: [logger]
 });
 
 export const useAppDispatch = () => useDispatch();

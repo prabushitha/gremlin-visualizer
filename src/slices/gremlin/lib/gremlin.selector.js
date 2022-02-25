@@ -1,3 +1,2 @@
-export const gremlinDataSelector = (state) =>
-    state?.gremlin;
+export const gremlinDataSelector = (state) => state.gremlin
 

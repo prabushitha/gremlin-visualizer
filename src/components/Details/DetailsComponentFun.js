@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import {
   ExpansionPanel,
@@ -33,14 +33,15 @@ import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from "axios";
 import { onFetchQuery } from '../../logics/actionHelper';
 import { stringifyObjectValues } from '../../logics/utils';
-import { useDispatch, useSelector } from 'react-redux';
-import { graphSelector } from '../../slices/graph'
-import { graphActions } from '../../slices/graph'
-import { gremlinDataSelector } from '../../slices/gremlin/lib/gremlin.selector';
+import { graphSelector, graphActions } from '../../slices/graph'
+import { gremlinDataSelector, gremlinActions } from '../../slices/gremlin'
+import { optionDataSelector, optionActions } from '../../slices/option';
 
-const DetailsFun = (props) => {
+
+export const DetailsFun = (props) => {
   const dispatch = useDispatch()
   const { network, selectedNode, selectedEdge } = useSelector(graphSelector)
+  const { queryHistory, nodeLabels, nodeLimit, isPhysicsEnabled } = useSelector(optionDataSelector)
 
   let hasSelected = false;
   let selectedType = null;
@@ -63,47 +64,32 @@ const DetailsFun = (props) => {
     selectedHeader = 'Edge';
     stringifyObjectValues(selectedProperties);
   }
-  
-  const dispatch = useDispatch();
-  const {host, port} = useSelector(gremlinDataSelector);
 
-  const onAddNodeLabel = () => {
-    props.dispatch({ type: ACTIONS.ADD_NODE_LABEL });
-  }
+  const { host, port } = useSelector(gremlinDataSelector);
 
-  const onEditNodeLabel = (index, nodeLabel) => {
-    props.dispatch({ type: ACTIONS.EDIT_NODE_LABEL, payload: { id: index, nodeLabel } });
-  }
+  const onAddNodeLabel = () => dispatch(optionActions.addNodeLabel())
 
-  const onRemoveNodeLabel = (index) => {
-    props.dispatch({ type: ACTIONS.REMOVE_NODE_LABEL, payload: index });
-  }
+  const onEditNodeLabel = (index, nodeLabel) => dispatch(optionActions.editNodeLabel({ id: index, nodeLabel }))
 
-  const onEditNodeLimit = (limit) => {
-    props.dispatch({ type: ACTIONS.SET_NODE_LIMIT, payload: limit });
-  }
+  const onRemoveNodeLabel = (index) => dispatch(optionActions.removeNodeLabel(index))
 
-  const onRefresh = () => {
-    dispatch(graphActions.refreshNodeLabels(props.nodeLabels))
-    // props.dispatch({ type: ACTIONS.REFRESH_NODE_LABELS, payload: props.nodeLabels });
-  }
+  const onEditNodeLimit = (limit) => dispatch(optionActions.setNodeLiminit(limit));
+
+  const onRefresh = () => dispatch(graphActions.refreshNodeLabels(nodeLabels))
 
   const onTraverse = (nodeId, direction) => {
     const query = `g.V('${nodeId}').${direction}()`;
     axios.post(
       QUERY_ENDPOINT,
-      { host: host, port: port, query: query, nodeLimit: props.nodeLimit },
-      { headers: { 'Content-Type': 'application/json' } }
-    ).then((response) => {
-      onFetchQuery(response, query, props.nodeLabels, props.dispatch);
-    }).catch((error) => {
-      dispatch(gremlinActions.setError(COMMON_GREMLIN_ERROR))
-      // props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
-    });
+      { host: host, port: port, query: query, nodeLimit: nodeLimit },
+      { headers: { 'Content-Type': 'application/json' } })
+      .then((response) => onFetchQuery(response, query, nodeLabels, dispatch))
+      .catch((error) => dispatch(gremlinActions.setError(COMMON_GREMLIN_ERROR)));
   }
 
   const onTogglePhysics = (enabled) => {
-    props.dispatch({ type: ACTIONS.SET_IS_PHYSICS_ENABLED, payload: enabled });
+    dispatch(optionActions.setIsPhysicsEnabled(enabled));
+
     if (network) {
       const edges = {
         smooth: {
@@ -116,7 +102,7 @@ const DetailsFun = (props) => {
 
   const generateList = (list) => {
     let key = 0;
-    return list.map(value => {
+    return list && list.map(value => {
       key = key + 1;
       return React.cloneElement((
         <ListItem>
@@ -130,11 +116,13 @@ const DetailsFun = (props) => {
     });
   }
 
-  const generateNodeLabelList = (nodeLabels) => {
+  const generateNodeLabelList = (arg) => {
     let index = -1;
-    return nodeLabels.map(nodeLabel => {
+    let nodeLabels = JSON.parse(JSON.stringify(arg))
+    console.log(nodeLabels)
+    return nodeLabels && nodeLabels.map(nodeLabel => {
       index = index + 1;
-      nodeLabel.index = index;
+      nodeLabel['index'] = index;
       return React.cloneElement((
         <ListItem>
           <TextField id="standard-basic" label="Node Type" InputLabelProps={{ shrink: true }} value={nodeLabel.type} onChange={event => {
@@ -152,9 +140,7 @@ const DetailsFun = (props) => {
             <DeleteIcon fontSize="small" />
           </IconButton>
         </ListItem>
-      ), {
-        key: index
-      })
+      ), { key: index })
     });
   }
 
@@ -168,13 +154,12 @@ const DetailsFun = (props) => {
             <ExpansionPanelSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
+              id="panel1a-header">
               <Typography>Query History</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <List dense={true}>
-                {generateList(props.queryHistory)}
+                {generateList(queryHistory)}
               </List>
             </ExpansionPanelDetails>
           </ExpansionPanel>
@@ -182,8 +167,7 @@ const DetailsFun = (props) => {
             <ExpansionPanelSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
+              id="panel1a-header">
               <Typography>Settings</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
@@ -193,20 +177,18 @@ const DetailsFun = (props) => {
                     <FormControlLabel
                       control={
                         <Switch
-                          checked={props.isPhysicsEnabled}
-                          onChange={() => { onTogglePhysics(!props.isPhysicsEnabled); }}
+                          checked={isPhysicsEnabled}
+                          onChange={() => { onTogglePhysics(!isPhysicsEnabled); }}
                           value="physics"
-                          color="primary"
-                        />
+                          color="primary" />
                       }
-                      label="Enable Physics"
-                    />
+                      label="Enable Physics" />
                   </Tooltip>
                   <Divider />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                   <Tooltip title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions." aria-label="add">
-                    <TextField label="Node Limit" type="Number" variant="outlined" value={props.nodeLimit} onChange={event => {
+                    <TextField label="Node Limit" type="Number" variant="outlined" value={nodeLimit} onChange={event => {
                       const limit = event.target.value;
                       onEditNodeLimit(limit)
                     }} />
@@ -221,7 +203,7 @@ const DetailsFun = (props) => {
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                   <List dense={true}>
-                    {generateNodeLabelList(props.nodeLabels)}
+                    {generateNodeLabelList(nodeLabels)}
                   </List>
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
@@ -282,17 +264,3 @@ const DetailsFun = (props) => {
     </div>
   )
 }
-
-export const DetailsComponentFun = connect((state) => {
-  return {
-    // network: state.graph.network,
-    // selectedNode: state.graph.selectedNode,
-    // selectedEdge: state.graph.selectedEdge,
-    // host: state.gremlin.host,
-    // port: state.gremlin.port,
-    queryHistory: state.options.queryHistory,
-    nodeLabels: state.options.nodeLabels,
-    nodeLimit: state.options.nodeLimit,
-    isPhysicsEnabled: state.options.isPhysicsEnabled
-  };
-})(DetailsFun);

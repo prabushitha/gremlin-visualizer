@@ -1,3 +1,1 @@
-export const graphSelector = (state, { global }) =>
-    state;
-
+export const graphSelector = (state) =>   state.graph;
