@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import {
   ExpansionPanel,
   ExpansionPanelSummary,
@@ -33,6 +33,7 @@ import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from "axios";
 import { onFetchQuery} from '../../logics/actionHelper';
 import { stringifyObjectValues} from '../../logics/utils';
+import { gremlinDataSelector } from '../../../slices/gremlin/lib/gremlin.selector';
 
 const DetailsFun = (props) => {
 
@@ -56,6 +57,9 @@ const DetailsFun = (props) => {
     selectedHeader = 'Edge';
     stringifyObjectValues(selectedProperties);
   }
+  
+  const dispatch = useDispatch();
+  const {host, port} = useSelector(gremlinDataSelector);
 
   const onAddNodeLabel = () => {
     props.dispatch({ type: ACTIONS.ADD_NODE_LABEL });
@@ -81,12 +85,13 @@ const DetailsFun = (props) => {
     const query = `g.V('${nodeId}').${direction}()`;
     axios.post(
       QUERY_ENDPOINT,
-      { host: props.host, port: props.port, query: query, nodeLimit: props.nodeLimit },
+      { host: host, port: port, query: query, nodeLimit: props.nodeLimit },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
       onFetchQuery(response, query, props.nodeLabels, props.dispatch);
     }).catch((error) => {
-      props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
+      dispatch(gremlinActions.setError(COMMON_GREMLIN_ERROR))
+      // props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
     });
   }
 
@@ -273,8 +278,8 @@ const DetailsFun = (props) => {
 
 export const DetailsComponentFun = connect((state)=>{
   return {
-    host: state.gremlin.host,
-    port: state.gremlin.port,
+    // host: state.gremlin.host,
+    // port: state.gremlin.port,
     network: state.graph.network,
     selectedNode: state.graph.selectedNode,
     selectedEdge: state.graph.selectedEdge,
