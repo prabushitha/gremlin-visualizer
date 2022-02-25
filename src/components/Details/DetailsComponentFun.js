@@ -36,7 +36,7 @@ import { stringifyObjectValues } from '../../logics/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { graphSelector } from '../../slices/graph'
 import { graphActions } from '../../slices/graph'
-import { gremlinDataSelector } from '../../../slices/gremlin/lib/gremlin.selector';
+import { gremlinDataSelector } from '../../slices/gremlin/lib/gremlin.selector';
 
 const DetailsFun = (props) => {
   const dispatch = useDispatch()

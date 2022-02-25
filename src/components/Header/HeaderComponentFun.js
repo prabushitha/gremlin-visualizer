@@ -6,8 +6,8 @@ import { ACTIONS, QUERY_ENDPOINT, COMMON_GREMLIN_ERROR } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
 import { graphSelector } from '../../slices/graph'
 import { graphActions } from '../../slices/graph'
-import { gremlinActions } from '../../../slices/gremlin/lib/gremlin.slice';
-import { gremlinDataSelector } from '../../../slices/gremlin/lib/gremlin.selector';
+import { gremlinActions } from '../../slices/gremlin';
+import { gremlinDataSelector } from '../../slices/gremlin';
 
 const HeaderFun = ((props) => {
 
