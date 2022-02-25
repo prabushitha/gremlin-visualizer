@@ -10,7 +10,7 @@ import { App } from './App';
 import { useDispatch } from "react-redux";
 // import { globalReducer } from './slices/global'
 import { graphReducer } from './slices/graph'
-// import { gremlinReducer } from "./slices/gremlin";
+import { gremlinReducer } from "./slices/gremlin";
 // import { optionReducer } from "./slices/option";
 
 
@@ -18,7 +18,7 @@ import { graphReducer } from './slices/graph'
 const rootReducer = combineReducers({
   // global: globalReducer,
   graph: graphReducer,
-  // gremlin: gremlinReducer,
+  gremlin: gremlinReducer,
   // option: optionReducer,
 });
 
