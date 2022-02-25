@@ -22,7 +22,6 @@ export const HeaderFun = (() => {
 
   const clearGraph = () => {
     dispatch(graphActions.clearGraph());
-    dispatch(optionActions.clearQueryHistory());
   }
 
   const sendQuery = (e) => {
