@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   ExpansionPanel,
   ExpansionPanelSummary,
@@ -120,10 +120,9 @@ export const DetailsFun = (props) => {
     });
   }
 
-  const generateNodeLabelList = (arg) => {
+  const generateNodeLabelList = (nodeLabels) => {
     let index = -1;
-    let nodeLabels = JSON.parse(JSON.stringify(arg))
-    console.log(nodeLabels)
+    // let nodeLabels = JSON.parse(JSON.stringify(arg))
     return nodeLabels && nodeLabels.map(nodeLabel => {
       index = index + 1;
       nodeLabel['index'] = index;

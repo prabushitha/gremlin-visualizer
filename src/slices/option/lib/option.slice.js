@@ -6,7 +6,7 @@ export const optionAdapter = createEntityAdapter();
 
 export const initialState = {
   nodeLabels: [],
-  queryHistory: [],
+  queryHistory: JSON.parse(localStorage.getItem('queryHistory')),
   isPhysicsEnabled: true,
   nodeLimit: 100,
   networkOptions: {
@@ -51,15 +51,19 @@ export const optionSlice = createSlice({
   name: OPTION_FEATURE_KEY,
   initialState: initialState,
   reducers: {
-    
+
     setIsPhysicsEnabled: (state, action) => {
       state.isPhysicsEnabled = _.get(action, 'payload', true);
     },
-    
-    addQueryHistory: (state, {payload}) => {
-      state.queryHistory = [ ...state.queryHistory, payload];
-      let oldLocalStorage = localStorage.getItem('queryHistory');
-      localStorage.setItem('queryHistory', [...oldLocalStorage, payload]);
+
+    addQueryHistory: (state, { payload }) => {
+      let oldLocalStorage = JSON.parse(localStorage.getItem('queryHistory'))
+      const data = [payload]
+      if (oldLocalStorage) data.push(...oldLocalStorage)
+      const uniqueData = Array.from(new Set(data))
+      localStorage.setItem('queryHistory', JSON.stringify(uniqueData))
+
+      state.queryHistory = uniqueData;
     },
 
     clearQueryHistory: (state) => {
@@ -67,29 +71,29 @@ export const optionSlice = createSlice({
       localStorage.removeItem('queryHistory');
     },
 
-    setNodeLabels: (state, action ) => {
+    setNodeLabels: (state, action) => {
       state.nodeLabels = _.get(action, 'payload', []);
     },
 
-    addNodeLabel: (state, {payload}) => {
-      state.nodeLabels = [ ...state.queryHistory, payload].push({});
+    addNodeLabel: (state, { payload }) => {
+      state.nodeLabels = [...state.queryHistory, payload].push({});
     },
 
-    editNodeLabel: (state, {payload}) => {
+    editNodeLabel: (state, { payload }) => {
       const editIndex = payload.id;
       const editedNodeLabel = payload.nodeLabel;
-      if (state.nodeLabels[editIndex]) state.nodeLabels = [...state.nodeLabels.slice(0, editIndex), editedNodeLabel, ...state.nodeLabels.slice(editIndex+1)];
+      if (state.nodeLabels[editIndex]) state.nodeLabels = [...state.nodeLabels.slice(0, editIndex), editedNodeLabel, ...state.nodeLabels.slice(editIndex + 1)];
     },
 
-    removeNodeLabel: (state, {payload}) => {
+    removeNodeLabel: (state, { payload }) => {
       const removeIndex = payload;
-      if (removeIndex < state.nodeLabels.length) state.nodeLabels = [...state.nodeLabels.slice(0, removeIndex), ...state.nodeLabels.slice(removeIndex+1)];
+      if (removeIndex < state.nodeLabels.length) state.nodeLabels = [...state.nodeLabels.slice(0, removeIndex), ...state.nodeLabels.slice(removeIndex + 1)];
     },
 
-    setNodeLimit: (state, {payload}) => {
+    setNodeLimit: (state, { payload }) => {
       state.nodeLimit = payload;
     },
-   
+
   }
 });
 

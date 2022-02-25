@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Grid } from '@material-ui/core';
 import { HeaderFun } from './components/Header/HeaderComponentFun';
 import { NetworkGraphFun } from './components/NetworkGraph/NetworkGraphComponentFun';
