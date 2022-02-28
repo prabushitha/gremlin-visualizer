@@ -20,6 +20,7 @@ export const extractEdgesAndNodes = (nodeList, nodeLabels=[]) => {
 
   const nodeLabelMap =_.mapValues( _.keyBy(nodeLabels, 'type'), 'field');
 
+  nodeLabels = Object.assign([], nodeLabels);
   _.forEach(nodeList, (node) => {
     const type = node.label;
     if (!nodeLabelMap[type]) {

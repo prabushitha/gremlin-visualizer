@@ -41,7 +41,7 @@ export const graphSlice = createSlice({
       const newNodes = getDiffNodes(payload, state.nodes);
       const nodes = [...state.nodes, ...newNodes];
       state.nodeHolder.add(newNodes);
-      state.nodex = nodes
+      state.nodes = nodes
     },
 
     addEdges: (state, { payload }) => {

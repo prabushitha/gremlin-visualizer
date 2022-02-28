@@ -127,7 +127,8 @@ export const DetailsFun = (props) => {
   const generateNodeLabelList = (nodeLabels) => {
     let index = -1;
     // let nodeLabels = JSON.parse(JSON.stringify(arg))
-    return nodeLabels && nodeLabels.map(nodeLabel => {
+    return nodeLabels && nodeLabels.map((nodeLabel, i) => {
+      nodeLabel = Object.assign([], nodeLabel);
       index = index + 1;
       nodeLabel['index'] = index;
       return React.cloneElement((
