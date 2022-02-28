@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 import { getDiffNodes, getDiffEdges, findNodeById } from '../../../logics/utils'
 
-
 export const GRAPH_FEATURE_KEY = "graph";
 export const graphAdapter = createEntityAdapter();
 
@@ -17,8 +16,6 @@ export const initialGraphState = {
   selectedNode: {},
   selectedEdge: {},
 };
-
-
 
 export const graphSlice = createSlice({
   name: GRAPH_FEATURE_KEY,

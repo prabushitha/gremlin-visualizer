@@ -6,7 +6,7 @@ import { ACTIONS, QUERY_ENDPOINT, COMMON_GREMLIN_ERROR } from '../../constants';
 import { onFetchQuery } from '../../logics/actionHelper';
 import { optionDataSelector, optionActions, gremlinDataSelector, gremlinActions, graphSelector, graphActions } from '../../slices';
 
-export const HeaderFun = (() => {
+export const Header = (() => {
 
   const dispatch = useDispatch();
 

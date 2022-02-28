@@ -1,25 +1,24 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { Grid } from '@material-ui/core';
-import { HeaderFun } from './components/Header/HeaderComponentFun';
-import { NetworkGraphFun } from './components/NetworkGraph/NetworkGraphComponentFun';
-import { DetailsFun } from './components/Details/DetailsComponentFun';
+import { Header } from './components/Header/HeaderComponent';
+import { NetworkGraph } from './components/NetworkGraph/NetworkGraphComponent';
+import { Details } from './components/Details/DetailsComponent';
 
 export const App = () => {
   return (
-    <div>
+    <>
       <Grid container spacing={1}>
         <Grid item xs={12} sm={12} md={12}>
-          <HeaderFun />
+          <Header />
         </Grid>
         <Grid item xs={12} sm={9} md={9}>
-          <NetworkGraphFun />
+          <NetworkGraph />
         </Grid>
         <Grid item xs={12} sm={3} md={3}>
-          <DetailsFun />
+          <Details />
         </Grid>
       </Grid>
-
-    </div>
+    </>
   )
 }
 

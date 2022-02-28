@@ -1,5 +1,4 @@
 import { extractEdgesAndNodes } from './utils';
-import { useDispatch, useSelector } from 'react-redux';
 import {optionActions, graphActions} from '../slices';
 
 

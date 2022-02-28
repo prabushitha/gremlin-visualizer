@@ -4,7 +4,7 @@ import vis from 'vis-network';
 import { graphActions, graphSelector } from '../../slices/graph'
 import { optionDataSelector } from '../../slices/option';
 
-export const NetworkGraphFun = () => {
+export const NetworkGraph = () => {
   const dispatch = useDispatch()
   const { nodeHolder, edgeHolder } = useSelector(graphSelector)
   const { networkOptions } = useSelector(optionDataSelector)

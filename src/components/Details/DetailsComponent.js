@@ -30,7 +30,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import _ from 'lodash';
 import { JsonToTable } from 'react-json-to-table';
-import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
+import {  COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from "axios";
 import { onFetchQuery } from '../../logics/actionHelper';
 import { stringifyObjectValues } from '../../logics/utils';
@@ -39,7 +39,7 @@ import { gremlinDataSelector, gremlinActions } from '../../slices/gremlin'
 import { optionDataSelector, optionActions } from '../../slices/option';
 
 
-export const DetailsFun = (props) => {
+export const Details = () => {
   const dispatch = useDispatch()
   const { network, selectedNode, selectedEdge } = useSelector(graphSelector)
   const { queryHistory, nodeLabels, nodeLimit, isPhysicsEnabled } = useSelector(optionDataSelector)
