@@ -115,7 +115,7 @@ export const DetailsFun = (props) => {
           <ListItemText
             onClick={() => onQueryClick(value)}
             primary={value}
-            style={{cursor: 'pointer'}}
+            style={{ cursor: 'pointer' }}
           />
         </ListItem>
       ), {
@@ -166,12 +166,14 @@ export const DetailsFun = (props) => {
               <Typography>Query History</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails
-              style={{'overflow-y': 'auto',
-              'overflow-x': 'hidden',
-              'max-height': '200px' }}
-              >
+              style={{
+                'overflowY': 'auto',
+                'overflowX': 'hidden',
+                'maxHeight': '200px'
+              }}
+            >
               <List dense={true}>
-              <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ 'width': '100px' }} >Clear</Button>
+                <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ 'width': '100px' }} >Clear</Button>
                 {generateList(queryHistory)}
               </List>
             </ExpansionPanelDetails>
