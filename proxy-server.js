@@ -45,35 +45,57 @@ function edgesToJson(edgeList) {
 }
 
 const dataProcessingFunction = (obj) => {
-  console.log('--- new object ---')
-  
+  console.log('')
+  console.log('start data processing', obj, 'end data')
   if (obj instanceof Map) {
     return dataProcessingFunction(Object.fromEntries(obj))
   }
-
-  if (Array.isArray(obj)) {
-    console.log(obj)
-    if (obj instanceof Map) {
-      return dataProcessingFunction(Object.fromEntries(obj))
-    }
-  }
-
-  if (typeof (obj) === 'object') {
-    for (let el in obj) {
-      console.log('property')
-      console.log(obj[el])
-      if (Array.isArray(obj[el])) {
-        if (obj[el][0] instanceof Map) {
-          console.log('^^^ property array-map ^^^')
-          obj[el] = (Object.fromEntries(obj[el][0]))
-        }
-      }
-    }
-  }
-
   // console.log(obj)
 
-  // if (obj[el] instanceof Map){
+  if (Array.isArray(obj)) {
+
+    const newObj = obj.map((el) => {
+
+      if (el instanceof Map) {
+
+        return dataProcessingFunction(Object.fromEntries(el))
+      }
+
+      return el
+    })
+    if (newObj[0] instanceof Map) {
+      return dataProcessingFunction(newObj)
+    }
+    return newObj
+  }
+  if (typeof obj === 'object') {
+    for (let prop in obj) {
+      // console.log('73', prop)
+      console.log('74', prop, ':')
+      console.log(obj[prop])
+      console.log('')
+
+      if (obj[prop][0] instanceof Map) {
+        console.log('77', obj[prop])
+        obj[prop] = dataProcessingFunction(obj[prop][0])
+      }
+
+      if (obj[prop] instanceof Map) {
+        obj[prop] = dataProcessingFunction(obj[prop])
+      }
+
+      if (Array.isArray(obj[prop])) {
+        console.log('array _______________')
+        console.log('89', prop)
+        obj[prop] = obj[prop].map((el) => {
+          console.log('91', el)
+          return dataProcessingFunction(el)
+        })
+      }
+    }
+
+  }
+
 
   return obj
 }
@@ -81,14 +103,14 @@ const dataProcessingFunction = (obj) => {
 
 function nodesToJson(nodeList) {
 
-  console.log(nodeList)
+  // console.log(nodeList)
+  console.log('145', [nodeList[1]])
   console.log('^^^^^^^^^^^^^ Original data ^^^^^^^^^^^^^^^^')
 
-  newObjArr = nodeList.map(el => {
-    return dataProcessingFunction(el)
-  })
+  newObjArr = dataProcessingFunction(nodeList)
 
   console.log('############## Data processed ############')
+  console.log(newObjArr)
   // console.log(newObjArr)
   // console.log(newObjArr[0].properties)
 
