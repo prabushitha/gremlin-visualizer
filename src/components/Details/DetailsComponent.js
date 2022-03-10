@@ -66,7 +66,7 @@ export const Details = () => {
     stringifyObjectValues(selectedProperties);
   }
 
-  const { host, port } = useSelector(gremlinDataSelector);
+  const { host, port, query: queryGlobal } = useSelector(gremlinDataSelector);
 
   const onAddNodeLabel = () => dispatch(optionActions.addNodeLabel())
 
@@ -83,8 +83,8 @@ export const Details = () => {
   const onQueryClick = (text) => dispatch(gremlinActions.setQuery(text));
 
   const onTraverse = (nodeId, direction) => {
-    const query = `g.V('${nodeId}').${direction}()`;
-    onFetchQuery({}, query, nodeLabels, dispatch)
+    const traversal=queryGlobal.split('(')
+    const query = `${traversal[0]}('${nodeId}').${direction}()`;
     axios.post(
       QUERY_ENDPOINT,
       { host: host, port: port, query: query, nodeLimit: nodeLimit },
@@ -126,7 +126,6 @@ export const Details = () => {
 
   const generateNodeLabelList = (nodeLabels) => {
     let index = -1;
-    // let nodeLabels = JSON.parse(JSON.stringify(arg))
     return nodeLabels && nodeLabels.map((nodeLabel, i) => {
       nodeLabel = Object.assign([], nodeLabel);
       index = index + 1;
