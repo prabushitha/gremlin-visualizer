@@ -11,16 +11,18 @@ export const NetworkGraph = () => {
 
   const myRef = useRef(null)
 
+  console.log(nodeHolder, edgeHolder)
   useEffect(() => {
     const data = {
       nodes: nodeHolder,
       edges: edgeHolder
     };
-
     const network = new vis.Network(myRef.current, data, networkOptions); 
 
     network.on('selectNode', (params) => {
+      console.log(params)
       const nodeId = params.nodes && params.nodes.length > 0 ? params.nodes[0] : null;
+      console.log(nodeId)
       dispatch(graphActions.setSelectedNode(nodeId))
     });
 

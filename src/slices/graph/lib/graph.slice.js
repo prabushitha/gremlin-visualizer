@@ -42,6 +42,7 @@ export const graphSlice = createSlice({
     },
 
     addEdges: (state, { payload }) => {
+      console.log(payload)
       const newEdges = getDiffEdges(payload, state.edges);
       const edges = [...state.edges, ...newEdges];
       state.edgeHolder.add(newEdges);
@@ -52,6 +53,7 @@ export const graphSlice = createSlice({
     setSelectedNode: (state, { payload }) => {
       const nodeId = payload;
       let selectedNode = {};
+      console.log(payload)
       if (nodeId !== null) {
         selectedNode = findNodeById(state.nodes, nodeId);
       }

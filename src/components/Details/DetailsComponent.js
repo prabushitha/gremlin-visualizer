@@ -83,6 +83,9 @@ export const Details = () => {
   const onQueryClick = (text) => dispatch(gremlinActions.setQuery(text));
 
   const onTraverse = (nodeId, direction) => {
+    console.log('traverse')
+    console.log(nodeId)
+    console.log(direction)
     const traversal=queryGlobal.split('(')
     const query = `${traversal[0]}('${nodeId}').${direction}()`;
     axios.post(
