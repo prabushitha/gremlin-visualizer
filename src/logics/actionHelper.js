@@ -3,11 +3,16 @@ import {optionActions, graphActions} from '../slices';
 
 
 export const onFetchQuery = (result, query, oldNodeLabels, dispatch) => {
-  console.log(result.data)
-  console.log(oldNodeLabels)
+
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(result.data, oldNodeLabels);
-  console.log(edges)
-  dispatch(graphActions.addNodes(nodes));
+
+  const newNodes = nodes.map(node => {
+    return { ...node, properties: { age: node.properties.age[0], name: node.properties.name[0]  } }
+  })
+
+
+
+  dispatch(graphActions.addNodes(newNodes));
   dispatch(graphActions.addEdges(edges));
   dispatch(optionActions.addQueryHistory(query));
   dispatch(optionActions.setNodeLabels(nodeLabels));

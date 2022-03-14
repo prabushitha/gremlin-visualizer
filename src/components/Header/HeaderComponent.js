@@ -30,7 +30,6 @@ export const Header = (() => {
       { host: host, port: port, query: query, nodeLimit: nodeLimit },
       { headers: { 'Content-Type': 'application/json' } })
       .then((response) => {
-        console.log(response)
         return onFetchQuery(response, query, nodeLabels, dispatch)
       })
       .catch((error) => dispatch(gremlinActions.setError(COMMON_GREMLIN_ERROR)))
