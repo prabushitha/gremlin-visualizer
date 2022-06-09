@@ -4,6 +4,8 @@ const gremlin = require('gremlin');
 const cors = require('cors');
 const app = express();
 const port = 3001;
+const gremlinSV4 = require('gremlin-aws-sigv4');
+
 
 app.use(cors({
   credentials: true,
@@ -37,10 +39,10 @@ function edgesToJson(edgeList) {
 function nodesToJson(nodeList) {
   return nodeList.map(
     node => ({
-      id: node.get('id'),
-      label: node.get('label'),
-      properties: mapToObj(node.get('properties')),
-      edges: edgesToJson(node.get('edges'))
+      id: node['id'],
+      label: node['label'],
+      properties: node['properties'],
+      edges: edgesToJson(node['edges'])
     })
   );
 }
@@ -55,13 +57,27 @@ app.post('/query', (req, res, next) => {
   const gremlinPort = req.body.port;
   const nodeLimit = req.body.nodeLimit;
   const query = req.body.query;
-
-  const client = new gremlin.driver.Client(`ws://${gremlinHost}:${gremlinPort}/gremlin`, { traversalSource: 'g', mimeType: 'application/json' });
-
-  client.submit(makeQuery(query, nodeLimit), {})
-    .then((result) => res.send(nodesToJson(result._items)))
-    .catch((err) => next(err));
-
+  const use_aws_neptune = req.body.host.includes('neptune.amazonaws.com');
+  
+  if (use_aws_neptune) {
+    const connection = new gremlinSV4.driver.AwsSigV4DriverRemoteConnection(
+      gremlinHost, 8182, { secure: true },
+      // connected callback
+      () => {
+        connection.submit(makeQuery(query, nodeLimit)).then(r => {
+          let json = nodesToJson(r.traversers)          
+          res.send(json)
+        })
+      },
+    );
+  }
+  else {
+    const url = `wss://${gremlinHost}:${gremlinPort}/gremlin`;
+    const client = new gremlin.driver.Client(url, { traversalSource: 'g', mimeType: 'application/json' });
+    client.submit(makeQuery(query, nodeLimit), {})
+      .then((result) => res.send(nodesToJson(result._items)))
+      .catch((err) => {console.log(err);next(err) })
+  }
 });
 
 app.listen(port, () => console.log(`Simple gremlin-proxy server listening on port ${port}!`));

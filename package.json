@@ -5,6 +5,7 @@
   "description": "Visualize graph network corresponding to a gremlin query",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-neptune": "^3.105.0",
     "@material-ui/core": "^4.7.0",
     "@material-ui/icons": "^4.5.1",
     "axios": "^0.21.1",
@@ -12,6 +13,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "gremlin": "^3.4.4",
+    "gremlin-aws-sigv4": "^3.5.2",
     "lodash": "^4.17.15",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
