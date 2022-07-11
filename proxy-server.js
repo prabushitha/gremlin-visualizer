@@ -5,6 +5,8 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 const gremlinSV4 = require('gremlin-aws-sigv4');
+const { OAuth2Client } = require('google-auth-library');
+
 
 // Override error handler function FROM gremlin-aws-sigv4 to avoid throwing an exception that cannot be caught
 class AWSConnection extends gremlinSV4.driver.AwsSigV4DriverRemoteConnection {
@@ -83,7 +85,36 @@ function makeQuery(query, nodeLimit) {
   return `${query}${nodeLimitQuery}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
 }
 
-app.post('/query', (req, res, next) => {
+
+function checkAuthentication(auth) {
+  return new Promise((resolve, _) => {
+    // Resole to ture (authenticate) if there's no Google Client ID 
+    if (!process.env.GOOGLE_CLIENT_ID)  {
+      resolve(true);
+      return;
+    }
+
+    let googleSession = JSON.parse(auth);
+    if (!googleSession.clientId || !googleSession.credential) {
+      resolve(false);
+      return;
+    }
+    // Using our own google client ID ensures that we *only* accept Google Id tokens that
+    // are valid for our application
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    client.verifyIdToken({
+      idToken: googleSession.credential,
+      audience: process.env.GOOGLE_CLIENT_ID}).then(ticket => {
+        resolve(true);
+        return;
+      }).catch(err=> {
+        resolve(false)
+      })
+  })
+}
+
+function performQuery(req, res, next) {
   const gremlinHost = req.body.host;
   const gremlinPort = req.body.port;
   const nodeLimit = req.body.nodeLimit;
@@ -115,6 +146,18 @@ app.post('/query', (req, res, next) => {
       .then((result) => res.send(nodesToJson(result._items)))
       .catch((err) => { console.log(err); next(err) })
   }
+}
+
+app.post('/query', (req, res, next) => {
+  checkAuthentication(req.body.auth).then(isAuth => {
+    if (!isAuth)  {
+      res.sendStatus(401);    
+    }
+    else {
+      performQuery(req, res, next);
+    }
+  });
+
 });
 
 // Makes the app less brittle so that it doesn't crash when there's a timeout or a request error

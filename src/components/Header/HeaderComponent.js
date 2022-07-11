@@ -15,7 +15,13 @@ class Header extends React.Component {
     this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: null });
     axios.post(
       QUERY_ENDPOINT,
-      { host: this.props.host, port: this.props.port, query: this.props.query, nodeLimit: this.props.nodeLimit },
+      {
+        host: this.props.host,
+        port: this.props.port,
+        query: this.props.query,
+        nodeLimit: this.props.nodeLimit,
+        auth: window.localStorage.getItem('google_session'),
+      },
       { headers: { 'Content-Type': 'application/json' } }
     ).then((response) => {
       onFetchQuery(response, this.props.query, this.props.nodeLabels, this.props.dispatch);
