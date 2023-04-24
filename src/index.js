@@ -1,21 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
-import { createLogger } from 'redux-logger';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { logger } from 'redux-logger';
 import { Provider } from 'react-redux';
-
-import { reducer as gremlinReducer } from './reducers/gremlinReducer';
-import { reducer as graphReducer } from './reducers/graphReducer';
-import { reducer as optionReducer } from './reducers/optionReducer';
 import { App } from './App';
+import { useDispatch } from "react-redux";
+import { gremlinReducer, graphReducer, optionReducer } from "./slices";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const rootReducer = combineReducers({ gremlin: gremlinReducer, graph: graphReducer, options: optionReducer });
+const rootReducer = combineReducers({
+  graph: graphReducer,
+  gremlin: gremlinReducer,
+  option: optionReducer,
+});
 
-const store = createStore(
-  rootReducer,
-  composeEnhancers(applyMiddleware(createLogger()))
-);
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: [logger]
+});
 
-//6. Render react element
+export const useAppDispatch = () => useDispatch();
+
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));

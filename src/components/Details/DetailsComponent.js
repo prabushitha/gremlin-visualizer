@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   ExpansionPanel,
   ExpansionPanelSummary,
@@ -19,7 +19,8 @@ import {
   FormControlLabel,
   Switch,
   Divider,
-  Tooltip
+  Tooltip,
+  Button
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
@@ -29,66 +30,92 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import _ from 'lodash';
 import { JsonToTable } from 'react-json-to-table';
-import { ACTIONS, COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
+import {  COMMON_GREMLIN_ERROR, QUERY_ENDPOINT } from '../../constants';
 import axios from "axios";
-import { onFetchQuery} from '../../logics/actionHelper';
-import { stringifyObjectValues} from '../../logics/utils';
+import { onFetchQuery } from '../../logics/actionHelper';
+import { stringifyObjectValues } from '../../logics/utils';
+import { graphSelector, graphActions } from '../../slices/graph'
+import { gremlinDataSelector, gremlinActions } from '../../slices/gremlin'
+import { optionDataSelector, optionActions } from '../../slices/option';
 
-class Details extends React.Component {
 
-  onAddNodeLabel() {
-    this.props.dispatch({ type: ACTIONS.ADD_NODE_LABEL });
+export const Details = () => {
+  const dispatch = useDispatch()
+  const { network, selectedNode, selectedEdge } = useSelector(graphSelector)
+  const { queryHistory, nodeLabels, nodeLimit, isPhysicsEnabled } = useSelector(optionDataSelector)
+
+  let hasSelected = false;
+  let selectedType = null;
+  let selectedId = null;
+  let selectedProperties = null;
+  let selectedHeader = null;
+
+  if (!_.isEmpty(selectedNode)) {
+    hasSelected = true;
+    selectedType = _.get(selectedNode, 'type');
+    selectedId = _.get(selectedNode, 'id');
+    selectedProperties = _.get(selectedNode, 'properties');
+    stringifyObjectValues(selectedProperties);
+    selectedHeader = 'Node';
+  } else if (!_.isEmpty(selectedEdge)) {
+    hasSelected = true;
+    selectedType = _.get(selectedEdge, 'type');
+    selectedId = _.get(selectedEdge, 'id');
+    selectedProperties = _.get(selectedEdge, 'properties');
+    selectedHeader = 'Edge';
+    stringifyObjectValues(selectedProperties);
   }
 
-  onEditNodeLabel(index, nodeLabel) {
-    this.props.dispatch({ type: ACTIONS.EDIT_NODE_LABEL, payload: { id: index, nodeLabel } });
-  }
+  const { host, port, query: queryGlobal } = useSelector(gremlinDataSelector);
 
-  onRemoveNodeLabel(index) {
-    this.props.dispatch({ type: ACTIONS.REMOVE_NODE_LABEL, payload: index });
-  }
+  const onAddNodeLabel = () => dispatch(optionActions.addNodeLabel())
 
-  onEditNodeLimit(limit) {
-    this.props.dispatch({ type: ACTIONS.SET_NODE_LIMIT, payload: limit });
-  }
+  const onEditNodeLabel = (index, nodeLabel) => dispatch(optionActions.editNodeLabel({ id: index, nodeLabel }))
 
-  onRefresh() {
-    this.props.dispatch({ type: ACTIONS.REFRESH_NODE_LABELS, payload: this.props.nodeLabels });
-  }
+  const onRemoveNodeLabel = (index) => dispatch(optionActions.removeNodeLabel(index))
 
-  onTraverse(nodeId, direction) {
-    const query = `g.V('${nodeId}').${direction}()`;
+  const onEditNodeLimit = (limit) => dispatch(optionActions.setNodeLiminit(limit));
+
+  const onRefresh = () => dispatch(graphActions.refreshNodeLabels(nodeLabels));
+
+  const onClearQueryHistory = () => dispatch(optionActions.clearQueryHistory());
+
+  const onQueryClick = (text) => dispatch(gremlinActions.setQuery(text));
+
+  const onTraverse = (nodeId, direction) => {
+    const traversal=queryGlobal.split('(')
+    const query = `${traversal[0]}('${nodeId}').${direction}()`;
     axios.post(
       QUERY_ENDPOINT,
-      { host: this.props.host, port: this.props.port, query: query, nodeLimit: this.props.nodeLimit },
-      { headers: { 'Content-Type': 'application/json' } }
-    ).then((response) => {
-      onFetchQuery(response, query, this.props.nodeLabels, this.props.dispatch);
-    }).catch((error) => {
-      this.props.dispatch({ type: ACTIONS.SET_ERROR, payload: COMMON_GREMLIN_ERROR });
-    });
+      { host: host, port: port, query: query, nodeLimit: nodeLimit },
+      { headers: { 'Content-Type': 'application/json' } })
+      .then((response) => onFetchQuery(response, query, nodeLabels, dispatch))
+      .catch((error) => dispatch(gremlinActions.setError(COMMON_GREMLIN_ERROR)));
   }
 
-  onTogglePhysics(enabled){
-    this.props.dispatch({ type: ACTIONS.SET_IS_PHYSICS_ENABLED, payload: enabled });
-    if (this.props.network) {
+  const onTogglePhysics = (enabled) => {
+    dispatch(optionActions.setIsPhysicsEnabled(enabled));
+
+    if (network) {
       const edges = {
         smooth: {
           type: enabled ? 'dynamic' : 'continuous'
         }
       };
-      this.props.network.setOptions( { physics: enabled, edges } );
+      network.setOptions({ physics: enabled, edges });
     }
   }
 
-  generateList(list) {
+  const generateList = (list) => {
     let key = 0;
-    return list.map(value => {
-      key = key+1;
+    return list && list.map(value => {
+      key = key + 1;
       return React.cloneElement((
         <ListItem>
           <ListItemText
+            onClick={() => onQueryClick(value)}
             primary={value}
+            style={{ cursor: 'pointer' }}
           />
         </ListItem>
       ), {
@@ -97,155 +124,136 @@ class Details extends React.Component {
     });
   }
 
-  generateNodeLabelList(nodeLabels) {
+  const generateNodeLabelList = (nodeLabels) => {
     let index = -1;
-    return nodeLabels.map( nodeLabel => {
-      index = index+1;
-      nodeLabel.index = index;
+    return nodeLabels && nodeLabels.map((nodeLabel, i) => {
+      nodeLabel = Object.assign([], nodeLabel);
+      index = index + 1;
+      nodeLabel['index'] = index;
       return React.cloneElement((
         <ListItem>
           <TextField id="standard-basic" label="Node Type" InputLabelProps={{ shrink: true }} value={nodeLabel.type} onChange={event => {
             const type = event.target.value;
             const field = nodeLabel.field;
-            this.onEditNodeLabel(nodeLabel.index, { type, field })
+            onEditNodeLabel(nodeLabel.index, { type, field })
           }}
           />
           <TextField id="standard-basic" label="Label Field" InputLabelProps={{ shrink: true }} value={nodeLabel.field} onChange={event => {
             const field = event.target.value;
             const type = nodeLabel.type;
-            this.onEditNodeLabel(nodeLabel.index, { type, field })
-          }}/>
-          <IconButton aria-label="delete" size="small" onClick={() => this.onRemoveNodeLabel(nodeLabel.index)}>
+            onEditNodeLabel(nodeLabel.index, { type, field })
+          }} />
+          <IconButton aria-label="delete" size="small" onClick={() => onRemoveNodeLabel(nodeLabel.index)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </ListItem>
-      ), {
-        key: index
-      })
+      ), { key: index })
     });
   }
 
-  render(){
-    let hasSelected = false;
-    let selectedType = null;
-    let selectedId = null ;
-    let selectedProperties = null;
-    let selectedHeader = null;
-    if (!_.isEmpty(this.props.selectedNode)) {
-      hasSelected = true;
-      selectedType =  _.get(this.props.selectedNode, 'type');
-      selectedId = _.get(this.props.selectedNode, 'id');
-      selectedProperties = _.get(this.props.selectedNode, 'properties');
-      stringifyObjectValues(selectedProperties);
-      selectedHeader = 'Node';
-    } else if (!_.isEmpty(this.props.selectedEdge)) {
-      hasSelected = true;
-      selectedType =  _.get(this.props.selectedEdge, 'type');
-      selectedId = _.get(this.props.selectedEdge, 'id');
-      selectedProperties = _.get(this.props.selectedEdge, 'properties');
-      selectedHeader = 'Edge';
-      stringifyObjectValues(selectedProperties);
-    }
 
 
-    return (
-      <div className={'details'}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={12} md={12}>
-            <ExpansionPanel>
-              <ExpansionPanelSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>Query History</Typography>
-              </ExpansionPanelSummary>
-              <ExpansionPanelDetails>
-                <List dense={true}>
-                  {this.generateList(this.props.queryHistory)}
-                </List>
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
-            <ExpansionPanel>
-              <ExpansionPanelSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>Settings</Typography>
-              </ExpansionPanelSummary>
-              <ExpansionPanelDetails>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <Tooltip title="Automatically stabilize the graph" aria-label="add">
+  return (
+    <div className={'details'}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={12} md={12}>
+          <ExpansionPanel>
+            <ExpansionPanelSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header">
+              <Typography>Query History</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails
+              style={{
+                'overflowY': 'auto',
+                'overflowX': 'hidden',
+                'maxHeight': '200px'
+              }}
+            >
+              <List dense={true}>
+                <Button variant="contained" color="primary" onClick={onClearQueryHistory} style={{ 'width': '100px' }} >Clear</Button>
+                {generateList(queryHistory)}
+              </List>
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+          <ExpansionPanel>
+            <ExpansionPanelSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header">
+              <Typography>Settings</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Tooltip title="Automatically stabilize the graph" aria-label="add">
                     <FormControlLabel
                       control={
                         <Switch
-                          checked={this.props.isPhysicsEnabled}
-                          onChange={() => { this.onTogglePhysics(!this.props.isPhysicsEnabled); }}
+                          checked={isPhysicsEnabled}
+                          onChange={() => { onTogglePhysics(!isPhysicsEnabled); }}
                           value="physics"
-                          color="primary"
-                        />
+                          color="primary" />
                       }
-                      label="Enable Physics"
-                    />
-                    </Tooltip>
-                    <Divider />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <Tooltip title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions." aria-label="add">
-                      <TextField label="Node Limit" type="Number" variant="outlined" value={this.props.nodeLimit} onChange={event => {
-                        const limit = event.target.value;
-                        this.onEditNodeLimit(limit)
-                      }} />
-                    </Tooltip>
+                      label="Enable Physics" />
+                  </Tooltip>
+                  <Divider />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Tooltip title="Number of maximum nodes which should return from the query. Empty or 0 has no restrictions." aria-label="add">
+                    <TextField label="Node Limit" type="Number" variant="outlined" value={nodeLimit} onChange={event => {
+                      const limit = event.target.value;
+                      onEditNodeLimit(limit)
+                    }} />
+                  </Tooltip>
 
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <Divider />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <Typography>Node Labels</Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <List dense={true}>
-                      {this.generateNodeLabelList(this.props.nodeLabels)}
-                    </List>
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12}>
-                    <Fab variant="extended" color="primary" size="small" onClick={this.onRefresh.bind(this)}>
-                      <RefreshIcon />
-                      Refresh
-                    </Fab>
-                    <Fab variant="extended" size="small" onClick={this.onAddNodeLabel.bind(this)}>
-                      <AddIcon />
-                      Add Node Label
-                    </Fab>
-                  </Grid>
                 </Grid>
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
-          </Grid>
-          {hasSelected &&
-          <Grid item xs={12} sm={12} md={12}>
-            <h2>Information: {selectedHeader}</h2>
-            {selectedHeader === 'Node' &&
-            <Grid item xs={12} sm={12} md={12}>
-              <Grid container spacing={2}>
-                <Grid item xs={6} sm={6} md={6}>
-                  <Fab variant="extended" size="small" onClick={() => this.onTraverse(selectedId, 'out')}>
-                    Traverse Out Edges
-                    <ArrowForwardIcon/>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Divider />
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Typography>Node Labels</Typography>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                  <List dense={true}>
+                    {generateNodeLabelList(nodeLabels)}
+                  </List>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12}>
+                  <Fab variant="extended" color="primary" size="small" onClick={onRefresh}>
+                    <RefreshIcon />
+                    Refresh
                   </Fab>
-                </Grid>
-                <Grid item xs={6} sm={6} md={6}>
-                  <Fab variant="extended" size="small" onClick={() => this.onTraverse(selectedId, 'in')}>
-                    Traverse In Edges
-                    <ArrowBackIcon/>
+                  <Fab variant="extended" size="small" onClick={onAddNodeLabel}>
+                    <AddIcon />
+                    Add Node Label
                   </Fab>
                 </Grid>
               </Grid>
-            </Grid>
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+        </Grid>
+        {hasSelected &&
+          <Grid item xs={12} sm={12} md={12}>
+            <h2>Information: {selectedHeader}</h2>
+            {selectedHeader === 'Node' &&
+              <Grid item xs={12} sm={12} md={12}>
+                <Grid container spacing={2}>
+                  <Grid item xs={6} sm={6} md={6}>
+                    <Fab variant="extended" size="small" onClick={() => onTraverse(selectedId, 'out')}>
+                      Traverse Out Edges
+                      <ArrowForwardIcon />
+                    </Fab>
+                  </Grid>
+                  <Grid item xs={6} sm={6} md={6}>
+                    <Fab variant="extended" size="small" onClick={() => onTraverse(selectedId, 'in')}>
+                      Traverse In Edges
+                      <ArrowBackIcon />
+                    </Fab>
+                  </Grid>
+                </Grid>
+              </Grid>
             }
             <Grid item xs={12} sm={12} md={12}>
               <Grid container>
@@ -261,27 +269,12 @@ class Details extends React.Component {
                     </TableRow>
                   </TableBody>
                 </Table>
-                <JsonToTable json={selectedProperties}/>
+                <JsonToTable json={selectedProperties} />
               </Grid>
             </Grid>
           </Grid>
-          }
-        </Grid>
-      </div>
-    );
-  }
+        }
+      </Grid>
+    </div>
+  )
 }
-
-export const DetailsComponent = connect((state)=>{
-  return {
-    host: state.gremlin.host,
-    port: state.gremlin.port,
-    network: state.graph.network,
-    selectedNode: state.graph.selectedNode,
-    selectedEdge: state.graph.selectedEdge,
-    queryHistory: state.options.queryHistory,
-    nodeLabels: state.options.nodeLabels,
-    nodeLimit: state.options.nodeLimit,
-    isPhysicsEnabled: state.options.isPhysicsEnabled
-  };
-})(Details);

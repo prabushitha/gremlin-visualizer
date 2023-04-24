@@ -1,10 +1,19 @@
 import { extractEdgesAndNodes } from './utils';
-import { ACTIONS } from '../constants';
+import {optionActions, graphActions} from '../slices';
+
 
 export const onFetchQuery = (result, query, oldNodeLabels, dispatch) => {
+
   const { nodes, edges, nodeLabels } = extractEdgesAndNodes(result.data, oldNodeLabels);
-  dispatch({ type: ACTIONS.ADD_NODES, payload: nodes });
-  dispatch({ type: ACTIONS.ADD_EDGES, payload: edges });
-  dispatch({ type: ACTIONS.SET_NODE_LABELS, payload: nodeLabels });
-  dispatch({ type: ACTIONS.ADD_QUERY_HISTORY, payload: query });
+
+  const newNodes = nodes.map(node => {
+    return { ...node, properties: { age: node.properties.age[0], name: node.properties.name[0]  } }
+  })
+
+
+
+  dispatch(graphActions.addNodes(newNodes));
+  dispatch(graphActions.addEdges(edges));
+  dispatch(optionActions.addQueryHistory(query));
+  dispatch(optionActions.setNodeLabels(nodeLabels));
 };
