@@ -4,6 +4,9 @@
   "author": "Umesh Jayasinghe",
   "description": "Visualize graph network corresponding to a gremlin query",
   "license": "MIT",
+  "engines": {
+  "node": "16.x"
+  },
   "dependencies": {
     "@material-ui/core": "^4.7.0",
     "@material-ui/icons": "^4.5.1",
